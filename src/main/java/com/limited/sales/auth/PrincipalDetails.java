@@ -13,11 +13,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class PrincipalDetails implements UserDetails {
 
-    private User user;
-
-    public PrincipalDetails(User user) {
-        this.user = user;
-    }
+    private final User user;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

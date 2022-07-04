@@ -3,16 +3,60 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.limited.sales.user.UserMapper">
 
-    <insert id="save">
-        insert into user (user_email, user_password, user_cellphone, user_role, use_yn)
-        values (#{user.userEmail}, #{user.userPassword}, #{user.userCellphone}, #{user.userRole}, #{user.useYn})
+    <insert id="saveUser">
+        insert
+        into    user (
+                      user_email,
+                      user_password,
+                      user_cellphone,
+                      user_role,
+                      use_yn
+                      )
+        values  (
+                 #{user.userEmail},
+                 #{user.userPassword},
+                 #{user.userCellphone},
+                 #{user.userRole},
+                 #{user.useYn}
+                 )
     </insert>
+
+    <select id="checkEmail" resultType="_int">
+        select  count(*)
+        from    user
+        where   user_email = #{userEmail}
+    </select>
+
+    <update id="updateUser">
+        update  user
+        set     user_cellphone = #{user.userCellphone}
+        where   user_email = #{user.userEmail}
+    </update>
+
+    <select id="checkPassword" resultType="_int">
+        select  user_password
+        from    user
+        where   user_email = #{user.userEmail}
+
+    </select>
+
+    <update id="deleteUser">
+        update  user
+        set     use_yn = #{user.useYn}
+        where   user_email = #{user.userEmail}
+    </update>
+
+    <update id="updateUserRole">
+        update  user
+        set     user_role = 'ROLE_ADMIN'
+        where   user_email = #{userEmail}
+    </update>
 
 
     <select id="findByUserEmail" resultType="User">
-        select user_email, user_password, user_cellphone, user_role, use_yn
-        from user
-        where user_email = #{userEmail}
+        select  user_email, user_password, user_cellphone, user_role, use_yn
+        from    user
+        where   user_email = #{userEmail}
     </select>
 
 

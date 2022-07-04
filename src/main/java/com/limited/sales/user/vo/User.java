@@ -10,5 +10,6 @@ public class User {
     private String userCellphone;
     private String userRole;
     private String useYn;
+    private String refreshToken;
 
 }

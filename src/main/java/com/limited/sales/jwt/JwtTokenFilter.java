@@ -17,10 +17,8 @@ public class JwtTokenFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
 
-        // 토큰 : limited
-        // id, pw 정상적으로 들어와서 로그인이 완료되면, 토큰을 만들어주고 응답해준다.
-        // 요청할때마다 header에 Authorization에 value 값으로 토큰을 가져올것이다.
-        //그때 토큰이 넘어오면, 이 토큰이 내가 만든 토큰이 맞는지 검증한다.
+        // 여기서는 로그인 시도할 때, 토큰 값을 limited로 잘들고 오는지 검증하기 위해
+        // 1차적으로 한번 걸러주는 역할을 한다.
         if(req.getMethod().equals("POST")) {
             String headerAuth = req.getHeader("Authorization");
             log.debug("=============== Authorization = {}", headerAuth);

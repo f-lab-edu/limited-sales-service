@@ -1,4 +1,4 @@
-package com.limited.sales.config.auth;
+package com.limited.sales.principal;
 
 import com.limited.sales.user.UserService;
 import com.limited.sales.user.vo.User;
@@ -17,7 +17,7 @@ public class PrincipalDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User byUser = userService.findByUser(username);
+        final User byUser = userService.findByUser(username);
         return new PrincipalDetails(byUser);
     }
 }

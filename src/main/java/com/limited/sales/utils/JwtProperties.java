@@ -1,4 +1,4 @@
-package com.limited.sales.config.jwt;
+package com.limited.sales.utils;
 
 public interface JwtProperties {
     String ACCESS_SECRET = "limited";
@@ -6,6 +6,4 @@ public interface JwtProperties {
     int EXPIRATION_TIME = 864000000; // 10일
     String TOKEN_PREFIX = "Bearer ";
     String HEADER_STRING = "Authorization";
-    String ACCESS_TOKEN = "AccessToken";
-    String REFRESH_TOKEN = "RefreshToken";
 }

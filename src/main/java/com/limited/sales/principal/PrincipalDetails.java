@@ -1,9 +1,7 @@
-package com.limited.sales.config.auth;
-
+package com.limited.sales.principal;
 
 import com.limited.sales.user.vo.User;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,7 +10,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Data
-@RequiredArgsConstructor
 public class PrincipalDetails implements UserDetails {
     private final User user;
 

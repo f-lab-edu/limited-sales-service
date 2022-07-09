@@ -3,13 +3,13 @@ package com.limited.sales.utils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.limited.sales.config.jwt.JwtProperties;
+import com.auth0.jwt.interfaces.Claim;
 import com.limited.sales.user.vo.User;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-public class JwtTokenCreateUtils {
+public final class JwtProvider {
     public String createAccessTokenMethod(final @NotNull User user) {
         return JWT.create()
                 .withSubject(user.getUserEmail())
@@ -24,4 +24,17 @@ public class JwtTokenCreateUtils {
                 .withClaim("userEmail", user.getUserEmail())
                 .sign(Algorithm.HMAC512(JwtProperties.REFRESH_SECRET));
     }
+
+    public Claim getClaim(final @NotNull String token, final @NotNull String claim){
+        return JWT.require(Algorithm.HMAC512(JwtProperties.ACCESS_SECRET))
+                .build()
+                .verify(token)
+                .getClaim(claim)
+                ;
+    }
+
+    public String replaceTokenPrefix(final @NotNull String header){
+        return header.replace(JwtProperties.TOKEN_PREFIX, "");
+    }
 }
+

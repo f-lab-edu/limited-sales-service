@@ -1,16 +1,14 @@
 package com.limited.sales.user.vo;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 
-@Data
 @Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class User implements Serializable {
     private String userEmail;
     private String userPassword;

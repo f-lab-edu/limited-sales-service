@@ -1,6 +1,5 @@
 package com.limited.sales.utils;
 
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
@@ -20,7 +19,7 @@ public final class JwtProvider {
 
     public String createRefreshTokenMethod(final @NotNull User user) {
         return JWT.create()
-                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME * 10L))
+                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.REFRESH_EXPIRATION_TIME))
                 .withClaim("userEmail", user.getUserEmail())
                 .sign(Algorithm.HMAC512(JwtProperties.REFRESH_SECRET));
     }

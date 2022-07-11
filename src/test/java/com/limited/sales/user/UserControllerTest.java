@@ -131,9 +131,7 @@ class UserControllerTest {
     @Rollback
     void userInfoUpdate() throws Exception {
         User user = User.builder()
-                .userEmail("test@test")
-                .userPassword("1234")
-                .userCellphone("01088887777")
+                .userCellphone(null)
                 .build();
 
         Gson gson = new Gson();
@@ -144,7 +142,7 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
                         .content(jsonUser))
-                .andExpect(status().isOk())
+                .andExpect(status().isBadRequest())
                 .andDo(print())
         ;
     }
@@ -189,5 +187,24 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
         ;
+    }
+
+    @Test
+    @Rollback
+    void admin() throws Exception{
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("userEmail", "test@test");
+        jsonObject.addProperty("userPassword", "1234");
+
+        mockMvc.perform(patch("/user/admin/limitedsale")
+                        .header(JwtProperties.HEADER_STRING, this.JwtAccessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .content(jsonObject.toString())
+                )
+                .andExpect(status().isOk())
+                .andDo(print())
+                ;
+
     }
 }

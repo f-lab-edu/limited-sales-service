@@ -3,7 +3,6 @@ package com.limited.sales.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,10 +21,6 @@ public class SecurityConfig {
                 .disable()
                 .apply(customAuthCheck)
                 .and()
-                .authorizeRequests(authorize ->
-                        authorize.antMatchers(HttpMethod.POST, "/user").permitAll()
-                                .antMatchers(HttpMethod.GET, "/user/email").permitAll()
-                )
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .httpBasic().disable()

@@ -5,8 +5,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Mapper
 public interface UserMapper {
     /**
@@ -15,7 +13,7 @@ public interface UserMapper {
      * @param user
      * @return
      */
-    int insertUser(User user);
+    int insertUser(final User user);
 
     /**
      * 이메일 중복 체크
@@ -23,7 +21,7 @@ public interface UserMapper {
      * @param user
      * @return
      */
-    int emailOverlapCheck(User user);
+    int emailOverlapCheck(final User user);
 
     /**
      * 회원 탈퇴
@@ -31,7 +29,7 @@ public interface UserMapper {
      * @param user
      * @return
      */
-    int leave(User user);
+    int leave(final User user);
 
     /**
      * 패스워드 변경
@@ -39,15 +37,17 @@ public interface UserMapper {
      * @param user
      * @return
      */
-    int changePassword(User user);
+    int changePassword(final User user);
 
     /**
      * 내 정보 변경
      * update
-     * @param user
+     * @param userEmail
+     * @param targetUserUserCellphone
      * @return
      */
-    int changeMyInformation(User user);
+    int changeMyInformation(@Param("userEmail") final String userEmail,
+                            @Param("targetUserUserCellphone") final String targetUserUserCellphone);
 
     /**
      * 아이디/패스워드 사용자 체크
@@ -56,14 +56,23 @@ public interface UserMapper {
      * @return
      */
     @Transactional(readOnly = true)
-    int userCheck(User user);
+    int userCheck(final User user);
 
     /**
      * 사용자 정보 가져오기
      * @param userEmail
      * @return
      */
-    User findByUser(@Param("userEmail") String userEmail);
+    User findByUser(@Param("userEmail") final String userEmail);
+
+
+    /**
+     * 관리자로 권한 변경
+     * @param adminCode
+     * @param user
+     * @return
+     */
+    int changeUserRoleAdmin(@Param("adminCode") final String adminCode, @Param("userEmail") final String userEmail);
 
 
 }

@@ -43,7 +43,7 @@
 
     <update id="changeMyInformation">
         update user
-           set user_cellphone = #{userCellphone}
+           set user_cellphone = #{targetUserUserCellphone}
          where user_email = #{userEmail}
     </update>
 
@@ -58,4 +58,11 @@
                 , #{userCellphone}
         )
     </insert>
+
+    <update id="changeUserRoleAdmin">
+        update user
+           set user_role = 'ROLE_ADMIN'
+         where user_email = #{userEmail}
+           and 'limitedsale' = #{adminCode}
+    </update>
 </mapper>

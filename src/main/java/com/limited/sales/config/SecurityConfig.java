@@ -30,8 +30,6 @@ public class SecurityConfig {
 
     private final RedisService redisService;
 
-    private final JwtProvider jwtProvider;
-
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() { return new BCryptPasswordEncoder(); }
 
@@ -70,7 +68,7 @@ public class SecurityConfig {
             AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
             http
                     .addFilter(corsConfig.corsFilter())  //모든 요청에 이 필터를 탄다. @CrossOrigin(인증X), 시큐리티 필터에 등록 인증(O)
-                    .addFilter(new JwtAuthenticationFilter(authenticationManager, authenticationManager, redisService, jwtProvider))
+                    .addFilter(new JwtAuthenticationFilter(authenticationManager, redisService))
                     .addFilter(new JwtAuthorizationFilter(authenticationManager, userMapper, redisService));
         }
     }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.limited.sales.auth.PrincipalDetails;
 import com.limited.sales.redis.RedisService;
 import com.limited.sales.user.vo.User;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,20 +20,11 @@ import java.io.IOException;
 import java.time.Duration;
 
 @Slf4j
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final RedisService redisService;
-
-    private final JwtProvider provider;
-
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, AuthenticationManager authenticationManager1, RedisService redisService, JwtProvider provider) {
-        this.authenticationManager = authenticationManager1;
-        this.provider = provider;
-        super.setAuthenticationManager(authenticationManager);
-        this.redisService = redisService;
-    }
-
 
 
     // Authentication 객체 만들어서 리턴 => 의존 : AuthenticationManager
@@ -59,9 +51,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
             return authentication;
 
+        }catch (IOException e) {
+            e.printStackTrace();
         }catch (Exception e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
@@ -82,12 +77,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         System.out.println("successfulAuthentication 실행됨 : 인증완료되었다는 뜻임.");
         PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
+        User user = principalDetails.getUser();
 
         JwtProvider jwtProvider = new JwtProvider();
-
         //토큰을 새로 만든다.
-        String accessToken = jwtProvider.getToken(principalDetails, "accessToken");
-        String refreshToken = jwtProvider.getToken(principalDetails, "refreshToken");
+        String accessToken = jwtProvider.getToken(user, "accessToken");
+        String refreshToken = jwtProvider.getToken(user, "refreshToken");
 
         log.debug("=================== refreshToken 발급 : {}" , refreshToken);
 

@@ -1,6 +1,7 @@
 package com.limited.sales.auth;
 
 import com.limited.sales.user.vo.User;
+import com.limited.sales.user.vo.UserAdapter;
 import com.limited.sales.user.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ public class PrincipalDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String userEmail) throws UsernameNotFoundException {
         log.debug("PrincipalDetailsService.loadUserByUsername");
         User userEntity = userMapper.findByUserEmail(userEmail);
-        return new PrincipalDetails(userEntity);
+        if(userEntity == null) throw new UsernameNotFoundException(userEmail);
+        return new UserAdapter(userEntity);
     }
 }

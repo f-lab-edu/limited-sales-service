@@ -22,7 +22,7 @@
     </insert>
 
     <select id="checkEmail" resultType="_int">
-        select  count(*)
+        select  count(*) as cnt
         from    user
         where   user_email = #{userEmail}
     </select>

@@ -37,7 +37,7 @@ public interface UserMapper {
      * 회원탈퇴
      * @param user
      */
-    void deleteUser(@Param("user") User user);
+    int deleteUser(@Param("user") User user);
 
     void updateUserRole(@Param("userEmail") String userEmail);
 

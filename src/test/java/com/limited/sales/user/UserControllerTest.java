@@ -3,153 +3,192 @@ package com.limited.sales.user;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.limited.sales.user.vo.User;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
+
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-
-/**
- * 테스트코드 수정중~~~~~~
- */
-@Slf4j
-@WebAppConfiguration
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
-@Transactional
+@WebAppConfiguration
+@Slf4j
+@Transactional //  @Transactional의 default는 rollback true
 class UserControllerTest {
 
-    @Autowired
-    MockMvc mockMvc;
-    @Autowired
-    ObjectMapper objectMapper;
+  @Autowired private WebApplicationContext context;
 
-    private String access_token;
+  @Autowired ObjectMapper objectMapper;
 
-    /*
-     @Autowired
-     UserMapper userMapper;
-     */
+  @Autowired MockMvc mockMvc;
 
+  @BeforeEach
+  void setUp() {
+    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+  }
 
-    @BeforeEach
-    @DisplayName("토큰 발급")
-    void getUserToken() throws Exception {
-        //파라미터 셋팅
-        User user = new User();
-        user.setUserEmail("abcd@naver.com");
-        user.setUserPassword("1234");
+  @AfterEach
+  void tearDown() {}
 
-        String json = objectMapper.writeValueAsString(user);
+  @Test
+  @Rollback
+  @DisplayName("회원가입")
+  @WithAnonymousUser
+  void join() throws Exception {
 
-        log.debug("=============== joinInfo : {}", json);
+    User user =
+        User.builder()
+            .userEmail("daram@naver.com")
+            .userPassword("1234")
+            .userCellphone("01012341234")
+            .userRole("ROLE_USER")
+            .useYn("Y")
+            .build();
 
-        access_token = mockMvc.perform(post("/login")
-                        .header("Authorization", "limited")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andReturn().getResponse().getHeader("Authorization");
-    }
+    String json = objectMapper.writeValueAsString(user);
 
-    /*
-    @BeforeEach
-    public void setup() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
-    }
+    mockMvc
+        .perform(
+            post("/user")
+                .header("Authorization", "limited")
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .content(json))
+        .andExpect(status().isCreated())
+        .andDo(print());
+  }
 
+  @Test
+  @DisplayName("이메일 중복 체크")
+  @WithAnonymousUser
+  void userEmailChk() throws Exception {
+    // 파라미터 셋팅
+    User user = User.builder().userEmail("daramii@naver.com").build();
 
-     */
+    String json = objectMapper.writeValueAsString(user);
 
-    @Test
-    @DisplayName("회원가입")
-    @Rollback
-    void join() throws Exception {
+    mockMvc
+        .perform(
+            get("/user/email")
+                .header("Authorization", "limited")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+        .andDo(print())
+        .andExpect(status().isBadRequest());
+  }
 
-        //파라미터 셋팅
-        User user = new User();
-        user.setUserEmail("abcdeee@naver.com");
-        user.setUserPassword("1234");
-        user.setUserCellphone("01012341234");
-        user.setUserRole("ROLE_USER");
-        user.setUseYn("Y");
+  @Test
+  @DisplayName("회원정보 수정")
+  void userInfoChange() throws Exception {
+    // 파라미터 셋팅
+    User user = User.builder().userEmail("daramii@naver.com").userCellphone("1111").build();
 
-        //userMapper.saveUser(user);
-        //User findUser = userMapper.findByUserEmail(user.getUserEmail());
-        //assertThat(user.getUserEmail()).isEqualTo(findUser.getUserEmail());
+    String json = objectMapper.writeValueAsString(user);
 
+    mockMvc
+        .perform(
+            patch("/user")
+                .header("Authorization", getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
 
-        String json = objectMapper.writeValueAsString(user);
+  @Test
+  void userInfoDelete() throws Exception {
+    // 파라미터 셋팅
+    User user = User.builder().userEmail("daramii@naver.com").userPassword("1234").build();
 
-        log.debug("=============== joinInfo : {}", json);
+    String json = objectMapper.writeValueAsString(user);
 
-        mockMvc.perform(post("/user")
-                        .header("Authorization", "limited")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
+    mockMvc
+        .perform(
+            delete("/user")
+                .header("Authorization", getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
 
+  @Test
+  void userChangeAdmin() throws Exception {
+    // 파라미터 셋팅
+    User user = User.builder().userEmail("daramii@naver.com").build();
 
-    @Test
-    @DisplayName("로그인")
-    void user() throws Exception {
-        //파라미터 셋팅
-        User user = new User();
-        user.setUserEmail("abcd@naver.com");
-        user.setUserPassword("1234");
+    String json = objectMapper.writeValueAsString(user);
 
-        String json = objectMapper.writeValueAsString(user);
+    mockMvc
+        .perform(
+            patch("/user/admin")
+                .header("Authorization", getAccessToken())
+                .header("adminCode", "ADMIdN")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+        .andDo(print())
+        .andExpect(status().isBadRequest());
+  }
 
-        log.debug("=============== joinInfo : {}", json);
+  @Test
+  void reIssue() throws Exception {
 
-        mockMvc.perform(post("/login")
-                        .header("Authorization", "limited")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
+    mockMvc
+        .perform(
+            get("/re-issue")
+                .header("Authorization", getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
 
+  @Test
+  void logout() throws Exception {
+    mockMvc
+        .perform(
+            get("/logout")
+                .header("Authorization", getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
 
-    @Test
-    @DisplayName("이메일중복체크")
-    void userEmailChk() throws Exception {
-        //파라미터 셋팅
-        User user = new User();
-        user.setUserEmail("abcd@naver.com");
+  private String getAccessToken() throws Exception {
+    // 파라미터 셋팅
+    User user = User.builder().userEmail("daramii@naver.com").userPassword("1234").build();
 
-        String json = objectMapper.writeValueAsString(user);
+    String json = objectMapper.writeValueAsString(user);
 
-        log.debug("=============== joinInfo : {}", json);
+    String access_token =
+        mockMvc
+            .perform(
+                post("/login")
+                    .header("Authorization", "limited")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(json))
+            .andReturn()
+            .getResponse()
+            .getHeader("Authorization");
 
-        mockMvc.perform(get("/user/email")
-                        .header("Authorization", "limited")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-
+    return access_token;
+  }
 }

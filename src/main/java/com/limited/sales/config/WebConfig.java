@@ -7,6 +7,4 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class WebConfig implements WebMvcConfigurer{
-
-}
+public class WebConfig implements WebMvcConfigurer {}

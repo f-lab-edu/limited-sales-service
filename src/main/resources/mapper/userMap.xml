@@ -6,15 +6,15 @@
 
     <select id="emailOverlapCheck" resultType="int">
         select count(*)
-          from user
-         where user_email = #{userEmail}
+        from user
+        where user_email = #{userEmail}
     </select>
 
     <select id="userCheck" resultType="int">
         select count(*)
-          from user
-         where user_email = #{userEmail}
-           and user_password = #{userPassword}
+        from user
+        where user_email = #{userEmail}
+          and user_password = #{userPassword}
     </select>
 
 
@@ -24,45 +24,42 @@
              , user_cellphone
              , user_role
              , use_yn
-          from user
-         where user_email = #{userEmail}
+        from user
+        where user_email = #{userEmail}
     </select>
 
     <update id="leave">
         update user
-           set use_yn = 'N'
-         where user_email = #{userEmail}
-           and user_password = #{userPassword}
+        set use_yn = 'N'
+        where user_email = #{userEmail}
+          and user_password = #{userPassword}
     </update>
 
     <update id="changePassword">
         update user
-           set user_password = #{userPassword}
-         where user_email = #{userEmail}
+        set user_password = #{userPassword}
+        where user_email = #{userEmail}
     </update>
 
     <update id="changeMyInformation">
         update user
-           set user_cellphone = #{targetUserUserCellphone}
-         where user_email = #{userEmail}
+        set user_cellphone = #{targetUserUserCellphone}
+        where user_email = #{userEmail}
     </update>
 
     <insert id="insertUser">
-        insert into user (
-                  user_email
-                , user_password
-                , user_cellphone
-        ) values (
-                  #{userEmail}
-                , #{userPassword}
-                , #{userCellphone}
-        )
+        insert into user ( user_email
+                         , user_password
+                         , user_cellphone)
+        values ( #{userEmail}
+               , #{userPassword}
+               , #{userCellphone})
     </insert>
 
     <update id="changeUserRoleAdmin">
         update user
-           set user_role = 'ROLE_ADMIN'
-         where user_email = #{userEmail}
-           and 'limitedsale' = #{adminCode}
+        set user_role = 'ROLE_ADMIN'
+        where user_email = #{userEmail}
+          and 'limitedsale' = #{adminCode}
     </update>
 </mapper>

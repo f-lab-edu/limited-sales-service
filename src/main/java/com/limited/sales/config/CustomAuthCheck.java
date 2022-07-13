@@ -13,14 +13,15 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class CustomAuthCheck extends AbstractHttpConfigurer<CustomAuthCheck, HttpSecurity> {
-    private final UserService userService;
-    private final RedisService redisService;
+  private final UserService userService;
+  private final RedisService redisService;
 
-    @Override
-    public void configure(HttpSecurity builder) {
-        final AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
-        builder.addFilter(new JwtAuthenticationFilter(authenticationManager, redisService))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager, userService))
-        ;
-    }
+  @Override
+  public void configure(HttpSecurity builder) {
+    final AuthenticationManager authenticationManager =
+        builder.getSharedObject(AuthenticationManager.class);
+    builder
+        .addFilter(new JwtAuthenticationFilter(authenticationManager, redisService))
+        .addFilter(new JwtAuthorizationFilter(authenticationManager, userService));
+  }
 }

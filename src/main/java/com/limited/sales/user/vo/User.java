@@ -10,9 +10,9 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 public class User implements Serializable {
-    private String userEmail;
-    private String userPassword;
-    private String userCellphone;
-    private String userRole;
-    private String useYn;
+  private String userEmail;
+  private String userPassword;
+  private String userCellphone;
+  private String userRole;
+  private String useYn;
 }

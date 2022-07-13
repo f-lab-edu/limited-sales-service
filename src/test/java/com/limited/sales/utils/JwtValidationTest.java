@@ -18,64 +18,49 @@ import org.springframework.web.context.WebApplicationContext;
 import static com.auth0.jwt.JWT.require;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(value = "classpath:/application.properties")
 @Transactional
 @Slf4j
 class JwtValidationTest {
-    @Autowired
-    private WebApplicationContext context;
+  @Autowired private WebApplicationContext context;
 
-    @Autowired
-    MockMvc mockMvc;
+  @Autowired MockMvc mockMvc;
 
-    private String JwtAccessToken;
+  private String JwtAccessToken;
 
-    @BeforeEach
-    public void setup() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
+  @BeforeEach
+  public void setup() {
+    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
 
-        User user = User.builder()
-                .userEmail("test@test")
-                .userPassword("1234")
-                .build();
+    User user = User.builder().userEmail("test@test").userPassword("1234").build();
 
-        JwtProvider utils = new JwtProvider();
-        String accessTokenMethod = utils.createAccessTokenMethod(user);
-        JwtAccessToken = JwtProperties.TOKEN_PREFIX + accessTokenMethod;
+    JwtProvider utils = new JwtProvider();
+    String accessTokenMethod = utils.createAccessTokenMethod(user);
+    JwtAccessToken = JwtProperties.TOKEN_PREFIX + accessTokenMethod;
+  }
 
+  @Test
+  void isValidationAccessTokenCheck() {
+    JwtProvider jwtProvider = new JwtProvider();
+    String token = jwtProvider.replaceTokenPrefix(JwtAccessToken);
+
+    boolean result;
+    try {
+      require(Algorithm.HMAC512(JwtProperties.ACCESS_SECRET)).build().verify(token);
+
+      result = true;
+    } catch (Exception e) {
+      result = false;
     }
 
-    @Test
-    void isValidationAccessTokenCheck() {
-        JwtProvider jwtProvider = new JwtProvider();
-        String token = jwtProvider.replaceTokenPrefix(JwtAccessToken);
+    Assertions.assertThat(result).isTrue();
+  }
 
-        boolean result;
-        try {
-            require(Algorithm.HMAC512(JwtProperties.ACCESS_SECRET))
-                    .build()
-                    .verify(token)
-                    ;
+  @Test
+  void isValidationRefreshTokenCheck() {}
 
-            result = true;
-        } catch (Exception e){
-            result = false;
-        }
-
-        Assertions.assertThat(result).isTrue();
-    }
-
-    @Test
-    void isValidationRefreshTokenCheck() {
-    }
-
-    @Test
-    void isValidationAuthorizationCheck() {
-    }
+  @Test
+  void isValidationAuthorizationCheck() {}
 }

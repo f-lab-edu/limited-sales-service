@@ -24,48 +24,40 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 class TokenControllerTest {
 
-    @Autowired
-    MockMvc mockMvc;
+  @Autowired MockMvc mockMvc;
 
-    @Test
-    void login() throws Exception {
-        User user = User.builder()
-                .userEmail("ohjeung@naver.com")
-                .userPassword("1234")
-                .build();
-        Gson gson = new Gson();
-        String json = gson.toJson(user);
+  @Test
+  void login() throws Exception {
+    User user = User.builder().userEmail("ohjeung@naver.com").userPassword("1234").build();
+    Gson gson = new Gson();
+    String json = gson.toJson(user);
 
-        mockMvc.perform(post("/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .characterEncoding("utf-8")
-                        .content(json)
-                )
-                .andExpect(status().isOk())
-                .andDo(print())
-        ;
+    mockMvc
+        .perform(
+            post("/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .characterEncoding("utf-8")
+                .content(json))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
 
-    }
+  @Test
+  void accessReissue() throws Exception {
+    User user = User.builder().userEmail("ohjeung@naver.com").userPassword("1234").build();
 
-    @Test
-    void accessReissue() throws Exception {
-        User user = User.builder()
-                .userEmail("ohjeung@naver.com")
-                .userPassword("1234")
-                .build();
+    Gson gson = new Gson();
+    String json = gson.toJson(user);
 
-        Gson gson = new Gson();
-        String json = gson.toJson(user);
-
-        mockMvc.perform(post("/token")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .characterEncoding("utf-8")
-                        .content(json)
-                )
-                .andExpect(status().isOk())
-                .andDo(print())
-        ;
-    }
+    mockMvc
+        .perform(
+            post("/token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .characterEncoding("utf-8")
+                .content(json))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
 }

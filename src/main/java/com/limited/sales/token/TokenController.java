@@ -13,23 +13,15 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 @RestController
 @RequestMapping(
-        value = "/token",
-        produces = MediaType.APPLICATION_JSON_VALUE,
-        consumes = MediaType.APPLICATION_JSON_VALUE)
+    value = "/token",
+    produces = MediaType.APPLICATION_JSON_VALUE,
+    consumes = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class TokenController {
-    private final TokenService tokenService;
+  private final TokenService tokenService;
 
-    @PostMapping
-    public ResponseEntity<String> reissue(@RequestBody final User user){
-        return ResponseEntity.ok().body(tokenService.reissue(user));
-    }
-
-    @DeleteMapping
-    public ResponseEntity<String> logout(@RequestBody final User user, final HttpServletRequest request){
-        final String authorization = request.getHeader(JwtProperties.HEADER_STRING);
-        tokenService.refreshTokenDelete(user);
-        tokenService.accessTokenBlack(user, authorization);
-        return ResponseEntity.ok().body("");
-    }
+  @PostMapping
+  public ResponseEntity<String> reissue(@RequestBody final User user) {
+    return ResponseEntity.ok().body(tokenService.reissue(user));
+  }
 }

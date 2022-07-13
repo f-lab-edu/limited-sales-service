@@ -13,18 +13,17 @@ import org.springframework.test.context.TestPropertySource;
 @SpringBootTest
 @TestPropertySource(value = "classpath:/application.properties")
 public class BeanContextView {
-//    @Autowired
-//    DefaultListableBeanFactory context;
-//    @Autowired
-//    RedisTemplate<String, String> redisTemplate;
+  //    @Autowired
+  //    DefaultListableBeanFactory context;
+  //    @Autowired
+  //    RedisTemplate<String, String> redisTemplate;
 
-    @Test
-    void view(){
-        ApplicationContext context = new AnnotationConfigApplicationContext(RedisConfig.class);
-        RedisTemplate<String, String> template = context.getBean(RedisTemplate.class);
-        //RedisTemplate<String, String> redisTemplate = (RedisTemplate<String, String>) context.getBean("redisTemplate");
-        System.out.println(template.opsForValue().get("ohjeung@naver.com"));
-
-
-    }
+  @Test
+  void view() {
+    ApplicationContext context = new AnnotationConfigApplicationContext(RedisConfig.class);
+    RedisTemplate<String, String> template = context.getBean(RedisTemplate.class);
+    // RedisTemplate<String, String> redisTemplate = (RedisTemplate<String, String>)
+    // context.getBean("redisTemplate");
+    System.out.println(template.opsForValue().get("ohjeung@naver.com"));
+  }
 }

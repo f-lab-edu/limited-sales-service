@@ -19,12 +19,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestPropertySource(value = "classpath:/application.properties")
 class RedisServiceTest {
 
-    @Autowired
-    private RedisService redisService;
+  @Autowired private RedisService redisService;
 
-    @Test
-    void getValues() {
-        String values = redisService.getValues("ohjeung@naver.com");
-        log.info(values);
-    }
+  @Test
+  void getValues() {
+    String values = redisService.getValues("ohjeung@naver.com");
+    log.info(values);
+  }
 }

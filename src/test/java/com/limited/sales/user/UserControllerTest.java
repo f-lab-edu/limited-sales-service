@@ -25,186 +25,176 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(value = "classpath:/application.properties")
 @Transactional
 @Slf4j
 class UserControllerTest {
-    @Autowired
-    private WebApplicationContext context;
+  @Autowired private WebApplicationContext context;
 
-    @Autowired
-    MockMvc mockMvc;
+  @Autowired MockMvc mockMvc;
 
-    private String JwtAccessToken;
+  private String JwtAccessToken;
 
-    private RedisTemplate<String, String> template;
+  @BeforeEach
+  public void setup() {
+    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
 
-    @BeforeEach
-    public void setup() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
+    User user = User.builder().userEmail("test@test").userPassword("1234").build();
 
-        User user = User.builder()
-                .userEmail("test@test")
-                .userPassword("1234")
-                .build();
+    JwtProvider utils = new JwtProvider();
+    String accessTokenMethod = utils.createAccessTokenMethod(user);
+    JwtAccessToken = JwtProperties.TOKEN_PREFIX + accessTokenMethod;
+    log.info(JwtAccessToken);
+  }
 
-        JwtProvider utils = new JwtProvider();
-        String accessTokenMethod = utils.createAccessTokenMethod(user);
-        JwtAccessToken = JwtProperties.TOKEN_PREFIX + accessTokenMethod;
+  @Test
+  @Rollback
+  void emailOverlapCheck() throws Exception {
+    User user = User.builder().userEmail("ohjeung@naver.com").build();
+    Gson gson = new Gson();
+    String toJson = gson.toJson(user);
+    log.info(toJson);
 
-    }
+    mockMvc
+        .perform(
+            get("/user/email")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .characterEncoding("utf-8")
+                .content(toJson))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
 
-    @Test
-    void redisTest() {
-        template.opsForValue().set("ohjeung@naver.com", this.JwtAccessToken);
-        log.info(template.opsForValue().get("ohjeung@naver.com"));
-    }
+  @Test
+  @Rollback
+  void signUp() throws Exception {
+    User user =
+        User.builder()
+            .userEmail("ohejung@naver.com")
+            .userPassword("1234")
+            .useYn("Y")
+            .userCellphone("01088887777")
+            .userRole("")
+            .build();
 
-    @Test
-    @Rollback
-    void test() throws Exception {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("userId", "test@test");
-        jsonObject.addProperty("token", "tokenVal");
+    Gson gson = new Gson();
+    String jsonUser = gson.toJson(user);
 
-        System.out.println(jsonObject);
+    mockMvc
+        .perform(
+            post("/user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .content(jsonUser))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
 
-        mockMvc.perform(post("/user/test")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .characterEncoding("utf-8")
-                        .content(jsonObject.toString()))
-                .andExpect(status().isOk())
-                .andDo(print())
-                ;
-    }
+  @Test
+  @Rollback
+  void userInfoUpdate() throws Exception {
+    User user = User.builder().userCellphone(null).build();
 
-    @Test
-    @Rollback
-    void emailOverlapCheck() throws Exception {
-        User user = User.builder()
-                .userEmail("ohjeung@naver.com")
-                .build();
-        Gson gson = new Gson();
-        String toJson = gson.toJson(user);
-        log.info(toJson);
+    Gson gson = new Gson();
+    String jsonUser = gson.toJson(user);
 
-        mockMvc.perform(get("/user/email")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .characterEncoding("utf-8")
-                        .content(toJson)
-                )
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
+    mockMvc
+        .perform(
+            patch("/user")
+                .header(JwtProperties.HEADER_STRING, this.JwtAccessToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .content(jsonUser))
+        .andExpect(status().isBadRequest())
+        .andDo(print());
+  }
 
-    @Test
-    @Rollback
-    void signUp() throws Exception {
-        User user = User.builder()
-                .userEmail("ohejung@naver.com")
-                .userPassword("1234")
-                .useYn("Y")
-                .userCellphone("01088887777")
-                .userRole("")
-                .build();
+  @Test
+  @Rollback
+  void userPasswordChange() throws Exception {
+    User user = User.builder().userEmail("test@test").userPassword("1234").build();
 
-        Gson gson = new Gson();
-        String jsonUser = gson.toJson(user);
+    Gson gson = new Gson();
+    String jsonUser = gson.toJson(user);
 
-        mockMvc.perform(post("/user")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .content(jsonUser))
-                .andExpect(status().isOk())
-                .andDo(print())
-        ;
-    }
+    mockMvc
+        .perform(
+            patch("/user/password")
+                .header(JwtProperties.HEADER_STRING, this.JwtAccessToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .content(jsonUser))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
 
-    @Test
-    @Rollback
-    void userInfoUpdate() throws Exception {
-        User user = User.builder()
-                .userCellphone(null)
-                .build();
+  @Test
+  @Rollback
+  void userDelete() throws Exception {
+    User user = User.builder().userEmail("test@test").userPassword("1234").build();
 
-        Gson gson = new Gson();
-        String jsonUser = gson.toJson(user);
+    Gson gson = new Gson();
+    String jsonUser = gson.toJson(user);
 
-        mockMvc.perform(patch("/user")
-                        .header(JwtProperties.HEADER_STRING, this.JwtAccessToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .content(jsonUser))
-                .andExpect(status().isBadRequest())
-                .andDo(print())
-        ;
-    }
+    mockMvc
+        .perform(
+            delete("/user")
+                .header(JwtProperties.HEADER_STRING, this.JwtAccessToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .content(jsonUser))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
 
-    @Test
-    @Rollback
-    void userPasswordChange() throws Exception {
-        User user = User.builder()
-                .userEmail("test@test")
-                .userPassword("1234")
-                .build();
+  @Test
+  @Rollback
+  void admin() throws Exception {
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.addProperty("userEmail", "test@test");
+    jsonObject.addProperty("userPassword", "1234");
 
-        Gson gson = new Gson();
-        String jsonUser = gson.toJson(user);
+    mockMvc
+        .perform(
+            patch("/user/admin/limitedsale")
+                .header(JwtProperties.HEADER_STRING, this.JwtAccessToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .content(jsonObject.toString()))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
 
-        mockMvc.perform(patch("/user/password")
-                        .header(JwtProperties.HEADER_STRING, this.JwtAccessToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .content(jsonUser))
-                .andExpect(status().isOk())
-                .andDo(print())
-        ;
-    }
+  @Test
+  void login() throws Exception {
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.addProperty("userEmail", "ohjeung@naver.com");
+    jsonObject.addProperty("userPassword", "1234");
 
-    @Test
-    @Rollback
-    void userDelete() throws Exception {
-        User user = User.builder()
-                .userEmail("test@test")
-                .userPassword("1234")
-                .build();
+    mockMvc
+        .perform(
+            post("/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .content(jsonObject.toString()))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
 
-        Gson gson = new Gson();
-        String jsonUser = gson.toJson(user);
-
-        mockMvc.perform(delete("/user")
-                        .header(JwtProperties.HEADER_STRING, this.JwtAccessToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .content(jsonUser))
-                .andExpect(status().isOk())
-                .andDo(print())
-        ;
-    }
-
-    @Test
-    @Rollback
-    void admin() throws Exception{
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("userEmail", "test@test");
-        jsonObject.addProperty("userPassword", "1234");
-
-        mockMvc.perform(patch("/user/admin/limitedsale")
-                        .header(JwtProperties.HEADER_STRING, this.JwtAccessToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .content(jsonObject.toString())
-                )
-                .andExpect(status().isOk())
-                .andDo(print())
-                ;
-
-    }
+  @Test
+  @Rollback
+  void logout() throws Exception {
+    this.JwtAccessToken =
+        "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJvaGpldW5nQG5hdmVyLmNvbSIsInVzZXJFbWFpbCI6Im9oamV1bmdAbmF2ZXIuY29tIiwiZXhwIjoxNjU4NDYwOTY0fQ.t3R0b4KVrzpCes6nbot1kEN2c9MM4xEarsCswHbQimPOd6vLO1QGbOor6cbWKIXf6V3eooLt7sxNERKUEEaKJQ";
+    mockMvc
+        .perform(
+            post("/logout")
+                .header(JwtProperties.HEADER_STRING, this.JwtAccessToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8"))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
 }

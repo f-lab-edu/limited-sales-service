@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 public class PrincipalDetailsService implements UserDetailsService {
-    private final UserService userService;
+  private final UserService userService;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        final User byUser = userService.findByUser(username);
-        return new PrincipalDetails(byUser);
-    }
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    final User byUser = userService.findByUser(username);
+    return new PrincipalDetails(byUser);
+  }
 }

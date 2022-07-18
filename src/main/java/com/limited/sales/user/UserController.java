@@ -1,20 +1,16 @@
 package com.limited.sales.user;
 
-import com.limited.sales.config.Constant;
+import com.limited.sales.annotation.CurrentUser;
 import com.limited.sales.exception.sub.BadRequestException;
-import com.limited.sales.principal.PrincipalDetails;
 import com.limited.sales.user.vo.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.constraints.NotNull;
 
 @Slf4j
 @RestController
@@ -38,21 +34,10 @@ public class UserController {
     return ResponseEntity.noContent().build();
   }
 
-  @GetMapping
-  @Secured({"ROLE_USER, ROLE_ADMIN"})
-  public ResponseEntity<String> findUser(@RequestBody final User user) {
-    final String findUserEmail = user.getUserEmail();
-    final User byUser = userService.findByEmail(findUserEmail);
-
-    final String toJson = Constant.getGson().toJson(byUser, User.class);
-    return ResponseEntity.ok(toJson);
-  }
-
   @PatchMapping
   @Secured({"ROLE_USER, ROLE_ADMIN"})
   public ResponseEntity<String> updateUserInfo(
-      final Authentication authentication, @RequestBody final User targetUser) {
-    final User user = getUser(authentication);
+          @CurrentUser User user, @RequestBody final User targetUser) {
     userService.changeUserInformation(user, targetUser);
     return ResponseEntity.noContent().build();
   }
@@ -77,8 +62,7 @@ public class UserController {
 
   @DeleteMapping
   @Secured({"ROLE_USER, ROLE_ADMIN"})
-  public ResponseEntity<String> deleteUser(final Authentication authentication) {
-    final User user = getUser(authentication);
+  public ResponseEntity<String> deleteUser(@CurrentUser User user) {
     userService.deleteUser(user);
     return ResponseEntity.noContent().build();
   }
@@ -86,14 +70,9 @@ public class UserController {
   @PatchMapping("/admin")
   @Secured({"ROLE_USER, ROLE_ADMIN"})
   public ResponseEntity<String> changeUserRoleToAdmin(
-      final Authentication authentication, @RequestHeader("AdminCode") final String adminCode) {
-    final User user = getUser(authentication);
+      @CurrentUser User user, @RequestHeader("AdminCode") final String adminCode) {
     userService.changeUserRoleToAdmin(adminCode, user);
     return ResponseEntity.noContent().build();
   }
 
-  private User getUser(@NotNull final Authentication authentication) {
-    final PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
-    return principal.getUser();
-  }
 }

@@ -1,14 +1,15 @@
 package com.limited.sales.token;
 
+import com.limited.sales.annotation.CurrentUser;
 import com.limited.sales.user.vo.User;
-import com.limited.sales.utils.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -27,7 +28,7 @@ public class TokenController {
    * @return ResponseEntity<String>
    */
   @PostMapping
-  public ResponseEntity<String> reissue(@RequestBody final User user) {
+  public ResponseEntity<String> reissueAccessToken(@CurrentUser User user) {
     return ResponseEntity.ok().body(tokenService.reissue(user));
   }
 }

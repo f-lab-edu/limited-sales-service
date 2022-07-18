@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class TokenBlackListInit {
+public final class TokenBlacklist {
   public static ConcurrentMap<String, String> getInstance() {
     return LazyHolder.TOKEN_BLACK_LIST;
   }

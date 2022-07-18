@@ -1,10 +1,11 @@
 package com.limited.sales.utils;
 
-public interface JwtProperties {
-  String ACCESS_SECRET = "limited";
-  String REFRESH_SECRET = "sales";
-  int EXPIRATION_TIME = 864000000; // 10일
-  long REFRESH_EXPIRATION_TIME = 8640000000L;
-  String TOKEN_PREFIX = "Bearer ";
-  String HEADER_STRING = "Authorization";
+public class JwtProperties {
+  public static final String ACCESS_SECRET = "limited";
+  public static final String REFRESH_SECRET = "sales";
+  public static final int ACCESS_EXPIRATION_TIME_MS = 60000 * 10; // 10 분
+  public static final int REFRESH_EXPIRATION_TIME_MS = 60000 * 60 * 24; // 24 시간
+  public static final String TOKEN_PREFIX = "Bearer ";
+  public static final String HEADER_STRING = "Authorization";
+  public static final String USER_EMAIL = "userEmail";
 }

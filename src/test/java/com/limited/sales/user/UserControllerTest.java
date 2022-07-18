@@ -4,14 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.limited.sales.utils.JwtProperties;
 import com.limited.sales.user.vo.User;
-import com.limited.sales.utils.JwtProvider;
+import com.limited.sales.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestPropertySource;
@@ -43,8 +42,8 @@ class UserControllerTest {
 
     User user = User.builder().userEmail("test@test").userPassword("1234").build();
 
-    JwtProvider utils = new JwtProvider();
-    String accessTokenMethod = utils.createAccessTokenMethod(user);
+    JwtUtils utils = new JwtUtils();
+    String accessTokenMethod = utils.createAccessToken(user);
     JwtAccessToken = JwtProperties.TOKEN_PREFIX + accessTokenMethod;
     log.info(JwtAccessToken);
   }

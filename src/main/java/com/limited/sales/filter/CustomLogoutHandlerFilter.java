@@ -3,7 +3,7 @@ package com.limited.sales.filter;
 import com.limited.sales.token.TokenService;
 import com.limited.sales.user.vo.User;
 import com.limited.sales.utils.JwtProperties;
-import com.limited.sales.utils.JwtProvider;
+import com.limited.sales.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -18,17 +18,16 @@ import javax.servlet.http.HttpServletResponse;
 @RequiredArgsConstructor
 public class CustomLogoutHandlerFilter implements LogoutHandler {
   private final TokenService tokenService;
-  private final JwtProvider jwtProvider = new JwtProvider();
 
   @Override
   public void logout(
       HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
     final String header = request.getHeader(JwtProperties.HEADER_STRING);
-    final String prefixToken = jwtProvider.replaceTokenPrefix(header);
-    final String userEmail = jwtProvider.getClaim(prefixToken, "userEmail").asString();
+    final String prefixToken = JwtUtils.replaceTokenPrefix(header);
+    final String userEmail = JwtUtils.getClaim(prefixToken, JwtProperties.USER_EMAIL).asString();
     final User user = User.builder().userEmail(userEmail).build();
 
-    tokenService.refreshTokenDelete(user);
-    tokenService.accessTokenBlack(user, header);
+    tokenService.deleteRefreshToken(user);
+    tokenService.blacklistAccessToken(user, header);
   }
 }

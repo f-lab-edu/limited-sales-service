@@ -1,6 +1,7 @@
 package com.limited.sales.user;
 
-import com.google.gson.Gson;
+import com.limited.sales.config.Constant;
+import com.limited.sales.exception.sub.BadRequestException;
 import com.limited.sales.principal.PrincipalDetails;
 import com.limited.sales.user.vo.User;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.Errors;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
@@ -20,13 +23,12 @@ import javax.validation.constraints.NotNull;
     produces = MediaType.APPLICATION_JSON_VALUE,
     consumes = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
-// @ResponseStatus(HttpStatus.OK)
 public class UserController {
   private final UserService userService;
 
   @GetMapping("/email")
-  public ResponseEntity<String> emailOverlapCheck(@RequestBody final User user) {
-    userService.emailOverlapCheck(user);
+  public ResponseEntity<String> checkEmailDuplication(@RequestBody final User user) {
+    userService.checkEmailDuplication(user);
     return ResponseEntity.noContent().build();
   }
 
@@ -40,43 +42,53 @@ public class UserController {
   @Secured({"ROLE_USER, ROLE_ADMIN"})
   public ResponseEntity<String> findUser(@RequestBody final User user) {
     final String findUserEmail = user.getUserEmail();
-    final User byUser = userService.findByUser(findUserEmail);
-    final Gson gson = new Gson();
+    final User byUser = userService.findByEmail(findUserEmail);
 
-    final String toJson = gson.toJson(byUser, User.class);
+    final String toJson = Constant.getGson().toJson(byUser, User.class);
     return ResponseEntity.ok(toJson);
   }
 
   @PatchMapping
   @Secured({"ROLE_USER, ROLE_ADMIN"})
-  public ResponseEntity<String> userInfoUpdate(
+  public ResponseEntity<String> updateUserInfo(
       final Authentication authentication, @RequestBody final User targetUser) {
     final User user = getUser(authentication);
-    userService.changeMyInformation(user, targetUser);
+    userService.changeUserInformation(user, targetUser);
     return ResponseEntity.noContent().build();
   }
 
   @PatchMapping("/password")
   @Secured({"ROLE_USER, ROLE_ADMIN"})
-  public ResponseEntity<String> userPasswordChange(@RequestBody final User user) {
-    userService.changePassword(user);
+  public ResponseEntity<String> changeUserPassword(
+      @RequestBody final User user,
+      @RequestHeader("OldPassword") @Validated final String oldPassword,
+      Errors error) {
+        if (error.hasErrors()) {
+          throw new BadRequestException("비밀번호를 다시 입력해주세요.");
+    }
+
+    if (userService.checkPassword(oldPassword)) {
+      userService.changePassword(user);
+    } else {
+      throw new RuntimeException("패스워드가 일치하지 않습니다.");
+    }
     return ResponseEntity.noContent().build();
   }
 
   @DeleteMapping
   @Secured({"ROLE_USER, ROLE_ADMIN"})
-  public ResponseEntity<String> userDelete(final Authentication authentication) {
+  public ResponseEntity<String> deleteUser(final Authentication authentication) {
     final User user = getUser(authentication);
-    userService.leave(user);
+    userService.deleteUser(user);
     return ResponseEntity.noContent().build();
   }
 
-  @PatchMapping("/admin/{code}")
+  @PatchMapping("/admin")
   @Secured({"ROLE_USER, ROLE_ADMIN"})
-  public ResponseEntity<String> admin(
-      final Authentication authentication, @PathVariable("code") final String adminCode) {
+  public ResponseEntity<String> changeUserRoleToAdmin(
+      final Authentication authentication, @RequestHeader("AdminCode") final String adminCode) {
     final User user = getUser(authentication);
-    userService.changeUserRoleAdmin(adminCode, user);
+    userService.changeUserRoleToAdmin(adminCode, user);
     return ResponseEntity.noContent().build();
   }
 

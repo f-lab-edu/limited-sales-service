@@ -4,62 +4,61 @@
 
 <mapper namespace="com.limited.sales.user.UserMapper">
 
-    <select id="emailOverlapCheck" resultType="int">
-        select count(*)
-        from user
-        where user_email = #{userEmail}
+    <select id="checkEmailDuplication" resultType="int">
+        SELECT COUNT(*)
+        FROM user
+        WHERE user_email = #{userEmail}
     </select>
 
-    <select id="userCheck" resultType="int">
-        select count(*)
-        from user
-        where user_email = #{userEmail}
-          and user_password = #{userPassword}
+    <select id="hasUser" resultType="boolean">
+        SELECT COUNT(*)
+        FROM user
+        WHERE user_email = #{userEmail}
+          AND user_password = #{userPassword}
     </select>
 
 
     <select id="findByUser" resultType="com.limited.sales.user.vo.User">
-        select user_email
+        SELECT user_email
              , user_password
              , user_cellphone
              , user_role
              , use_yn
-        from user
-        where user_email = #{userEmail}
+        FROM user
+        WHERE user_email = #{userEmail}
     </select>
 
-    <update id="leave">
-        update user
-        set use_yn = 'N'
-        where user_email = #{userEmail}
-          and user_password = #{userPassword}
+    <update id="deleteUser">
+        UPDATE user
+        SET use_yn = 'N'
+        WHERE user_email = #{userEmail}
+          AND user_password = #{userPassword}
     </update>
 
     <update id="changePassword">
-        update user
-        set user_password = #{userPassword}
-        where user_email = #{userEmail}
+        UPDATE user
+        SET user_password = #{userPassword}
+        WHERE user_email = #{userEmail}
     </update>
 
-    <update id="changeMyInformation">
-        update user
-        set user_cellphone = #{targetUserUserCellphone}
-        where user_email = #{userEmail}
+    <update id="changeUserInformation">
+        UPDATE user
+        SET user_cellphone = #{targetUserUserCellphone}
+        WHERE user_email = #{userEmail}
     </update>
 
     <insert id="insertUser">
-        insert into user ( user_email
+        INSERT INTO user ( user_email
                          , user_password
                          , user_cellphone)
-        values ( #{userEmail}
+        VALUES ( #{userEmail}
                , #{userPassword}
                , #{userCellphone})
     </insert>
 
-    <update id="changeUserRoleAdmin">
-        update user
-        set user_role = 'ROLE_ADMIN'
-        where user_email = #{userEmail}
-          and 'limitedsale' = #{adminCode}
+    <update id="changeUserRoleToAdmin">
+        UPDATE user
+        SET user_role = 'ROLE_ADMIN'
+        WHERE user_email = #{userEmail}
     </update>
 </mapper>

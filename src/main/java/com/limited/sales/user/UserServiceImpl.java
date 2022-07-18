@@ -1,5 +1,7 @@
 package com.limited.sales.user;
 
+import com.limited.sales.config.Constant;
+import com.limited.sales.exception.sub.DuplicatedIdException;
 import com.limited.sales.exception.sub.NoValidUserException;
 import com.limited.sales.exception.sub.SignException;
 import com.limited.sales.user.vo.User;
@@ -21,10 +23,12 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void signUp(final User user) {
-    final int count = userCheck(user);
-    if (count > 0) throw new SignException("이미 존재하는 계정입니다.");
+    final boolean isValidExistUser = hasUser(user);
+    if (isValidExistUser) {
+      throw new DuplicatedIdException("이미 존재하는 계정입니다.");
+    }
 
-    final User signUser =
+    final User newUser =
         User.builder()
             .userCellphone(user.getUserCellphone())
             .userEmail(user.getUserEmail())
@@ -33,35 +37,48 @@ public class UserServiceImpl implements UserService {
             .userPassword(bCryptPasswordEncoder.encode(user.getUserPassword()))
             .build();
 
-    userMapper.insertUser(signUser);
+    userMapper.insertUser(newUser);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public int emailOverlapCheck(final User user) {
-    final String userEmail = user.getUserEmail();
-
-    if (userEmail == null || "".equals(userEmail)) throw new SignException("이메일이 존재 하지 않습니다.");
-
-    return userMapper.emailOverlapCheck(user);
+  public boolean checkPassword(@NotNull final String userPassword) {
+    final String userPasswordEncode = bCryptPasswordEncoder.encode(userPassword);
+    return userMapper.checkPassword(userPasswordEncode);
   }
 
   @Override
-  public int leave(final User user) {
-    final int count = userCheck(user);
-    if (count == 0) throw new NoValidUserException("계정이 존재하지 않습니다.");
-    return userMapper.leave(user);
+  @Transactional(readOnly = true)
+  public int checkEmailDuplication(final User user) {
+    final String userEmail = user.getUserEmail();
+
+    if (userEmail == null || "".equals(userEmail)) {
+      throw new SignException("이메일이 존재 하지 않습니다.");
+    }
+
+    return userMapper.checkEmailDuplication(user);
+  }
+
+  @Override
+  public int deleteUser(final User user) {
+    final boolean isValidExistUser = hasUser(user);
+    if (isValidExistUser) {
+      throw new NoValidUserException("계정이 존재하지 않습니다.");
+    }
+    return userMapper.deleteUser(user);
   }
 
   @Override
   public int changePassword(final User user) {
-    final User byUser = userMapper.findByUser(user.getUserEmail());
-    if (byUser == null) throw new NoValidUserException("계정이 존재하지 않습니다.");
-    return userMapper.changePassword(byUser);
+    final User foundByEmail = userMapper.findByEmail(user.getUserEmail());
+    if (foundByEmail == null) {
+      throw new NoValidUserException("계정이 존재하지 않습니다.");
+    }
+    return userMapper.changePassword(foundByEmail);
   }
 
   @Override
-  public int changeMyInformation(final User user, final User targetUser) {
+  public int changeUserInformation(final User user, final User targetUser) {
     final Optional<String> optUserEmail = Optional.ofNullable(user.getUserEmail());
     final Optional<String> optTargetUserUserCellphone =
         Optional.ofNullable(targetUser.getUserCellphone());
@@ -75,29 +92,36 @@ public class UserServiceImpl implements UserService {
           throw new NoValidUserException("전화번호 파라미터에 값이 없습니다.");
         });
 
-    return userMapper.changeMyInformation(optUserEmail.get(), optTargetUserUserCellphone.get());
+    return userMapper.changeUserInformation(optUserEmail.get(), optTargetUserUserCellphone.get());
   }
 
   @Transactional(readOnly = true)
   @Override
-  public int userCheck(final User user) {
-    return userMapper.userCheck(user);
+  public boolean hasUser(final User user) {
+    return userMapper.hasUser(user);
   }
 
   @Transactional(readOnly = true)
   @Override
-  public User findByUser(@NotNull final String userEmail) {
-    final User byUser = userMapper.findByUser(userEmail);
-    if (byUser == null) throw new NoValidUserException("계정이 존재하지 않습니다.");
+  public User findByEmail(@NotNull final String userEmail) {
+    final User foundByEmail = userMapper.findByEmail(userEmail);
+    if (foundByEmail == null) {
+      throw new NoValidUserException("계정이 존재하지 않습니다.");
+    }
 
-    return byUser;
+    return foundByEmail;
   }
 
   @Override
-  public void changeUserRoleAdmin(@NotNull final String adminCode, @NotNull final User user) {
-    final User byUser = userMapper.findByUser(user.getUserEmail());
-    if (byUser == null) throw new NoValidUserException("계정이 존재하지 않습니다.");
-
-    userMapper.changeUserRoleAdmin(adminCode, byUser.getUserEmail());
+  public void changeUserRoleToAdmin(@NotNull final String adminCode, @NotNull final User user) {
+    final User byUser = userMapper.findByEmail(user.getUserEmail());
+    if (byUser == null) {
+      throw new NoValidUserException("계정이 존재하지 않습니다.");
+    }
+    if (Constant.ADMIN_CODE.equals(adminCode)) {
+      userMapper.changeUserRoleToAdmin(byUser.getUserEmail());
+    } else {
+      throw new RuntimeException("관리자 코드가 없거나 잘못 입력했습니다.");
+    }
   }
 }

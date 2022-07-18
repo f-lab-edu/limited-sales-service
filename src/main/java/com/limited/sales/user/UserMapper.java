@@ -21,7 +21,7 @@ public interface UserMapper {
    * @param user
    * @return
    */
-  int emailOverlapCheck(final User user);
+  int checkEmailDuplication(final User user);
 
   /**
    * 회원 탈퇴 update
@@ -29,7 +29,7 @@ public interface UserMapper {
    * @param user
    * @return
    */
-  int leave(final User user);
+  int deleteUser(final User user);
 
   /**
    * 패스워드 변경 update
@@ -46,7 +46,7 @@ public interface UserMapper {
    * @param targetUserUserCellphone
    * @return
    */
-  int changeMyInformation(
+  int changeUserInformation(
       @Param("userEmail") final String userEmail,
       @Param("targetUserUserCellphone") final String targetUserUserCellphone);
 
@@ -57,7 +57,7 @@ public interface UserMapper {
    * @return
    */
   @Transactional(readOnly = true)
-  int userCheck(final User user);
+  boolean hasUser(final User user);
 
   /**
    * 사용자 정보 가져오기
@@ -65,15 +65,20 @@ public interface UserMapper {
    * @param userEmail
    * @return
    */
-  User findByUser(@Param("userEmail") final String userEmail);
+  User findByEmail(@Param("userEmail") final String userEmail);
 
   /**
    * 관리자로 권한 변경
    *
-   * @param adminCode
-   * @param user
+   * @param userEmail
    * @return
    */
-  int changeUserRoleAdmin(
-      @Param("adminCode") final String adminCode, @Param("userEmail") final String userEmail);
+  int changeUserRoleToAdmin(@Param("userEmail") final String userEmail);
+
+  /**
+   * 사용자 패스워드 체크
+   * @param userPassword
+   * @return
+   */
+  boolean checkPassword(@Param("userPassword") final String userPassword);
 }

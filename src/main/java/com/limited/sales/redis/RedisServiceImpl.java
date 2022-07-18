@@ -9,10 +9,10 @@ import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
-public final class TokenRedisServiceImpl implements RedisService {
+public final class RedisServiceImpl implements RedisService {
   private final RedisTemplate<String, String> redisTemplate;
 
-  public void setValues(String key, String data) {
+  public void setValue(String key, String data) {
     ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
     valueOperations.set(key, data);
   }
@@ -22,12 +22,12 @@ public final class TokenRedisServiceImpl implements RedisService {
     valueOperations.set(key, data, duration);
   }
 
-  public String getValues(String key) {
+  public String getValue(String key) {
     ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
     return valueOperations.get(key);
   }
 
-  public void deleteValues(String key) {
+  public void deleteValue(String key) {
     redisTemplate.delete(key);
   }
 }

@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 public interface TokenService {
   String reissue(@NotNull final User user);
 
-  void refreshTokenDelete(@NotNull final User user);
+  void deleteRefreshToken(@NotNull final User user);
 
-  void accessTokenBlack(@NotNull final User user, @NotNull final String authorization);
+  void blacklistAccessToken(@NotNull final User user, @NotNull final String authorization);
 }

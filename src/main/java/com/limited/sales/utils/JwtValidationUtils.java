@@ -4,18 +4,20 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
 import static com.auth0.jwt.JWT.require;
 
-public final class JwtValidation {
-  private final JwtProvider jwtProvider = new JwtProvider();
+public final class JwtValidationUtils {
 
-  public boolean isValidationAccessTokenCheck(final @NotNull String token) {
+  public static boolean isAccessTokenValid(final @NotNull String token) {
     try {
-      final String prefixToken = jwtProvider.replaceTokenPrefix(token);
+      final String prefixToken = JwtUtils.replaceTokenPrefix(token);
       require(Algorithm.HMAC512(JwtProperties.ACCESS_SECRET)).build().verify(prefixToken);
       return true;
     } catch (JWTVerificationException e) {
+      return false;
+    } catch (NullPointerException e) {
       return false;
     } catch (Exception e) {
       e.printStackTrace();
@@ -23,7 +25,7 @@ public final class JwtValidation {
     }
   }
 
-  public boolean isValidationRefreshTokenCheck(final @NotNull String token) {
+  public static boolean isRefreshTokenValid(final @NotNull String token) {
     try {
       require(Algorithm.HMAC512(JwtProperties.REFRESH_SECRET)).build().verify(token);
       return true;
@@ -37,12 +39,11 @@ public final class JwtValidation {
     }
   }
 
-  public boolean isValidationAuthorizationCheck(final @NotNull String token) {
-    final boolean result;
+  public static boolean hasValidJwtToken(final @NotNull String token) {
+    if (token == null) {
+      return true;
+    }
 
-    if (token == null) result = true; // 토큰이 없을 경우 true
-    else result = !token.startsWith(JwtProperties.TOKEN_PREFIX); // 토큰이 있을 경우 false
-
-    return result;
+    return token.startsWith(JwtProperties.TOKEN_PREFIX);
   }
 }

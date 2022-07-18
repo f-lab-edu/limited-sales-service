@@ -12,7 +12,6 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
 @Slf4j
 class JwtValidationUtilsTest {
   /**
@@ -223,6 +222,26 @@ class JwtValidationUtilsTest {
             .withExpiresAt(new Date(System.currentTimeMillis() + 60000 * 10))
             .withClaim(JwtProperties.USER_EMAIL, "test@test.com")
             .sign(Algorithm.HMAC512(JwtProperties.ACCESS_SECRET));
+
+    boolean testJwtToken = JwtValidationUtils.hasValidJwtToken(testAccessToken);
+
+    assertThat(testJwtToken).isFalse();
+  }
+
+  @Test
+  @DisplayName("토큰존재 유무 확인 - false 토큰 공백")
+  void hasValidJwtTokenEmpty() {
+    String testAccessToken = "";
+
+    boolean testJwtToken = JwtValidationUtils.hasValidJwtToken(testAccessToken);
+
+    assertThat(testJwtToken).isFalse();
+  }
+
+  @Test
+  @DisplayName("토큰존재 유무 확인 - false NULL")
+  void hasValidJwtTokenNull() {
+    String testAccessToken = null;
 
     boolean testJwtToken = JwtValidationUtils.hasValidJwtToken(testAccessToken);
 

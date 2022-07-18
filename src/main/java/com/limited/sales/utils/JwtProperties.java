@@ -8,4 +8,5 @@ public class JwtProperties {
   public static final String TOKEN_PREFIX = "Bearer ";
   public static final String HEADER_STRING = "Authorization";
   public static final String USER_EMAIL = "userEmail";
+  public static final String BLACKLIST_POSTFIX = "_black";
 }

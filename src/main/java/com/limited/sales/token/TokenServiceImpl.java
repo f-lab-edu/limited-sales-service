@@ -17,14 +17,13 @@ import java.util.concurrent.ConcurrentMap;
 @RequiredArgsConstructor
 public final class TokenServiceImpl implements TokenService {
   private final RedisService redisService;
-  private final ConcurrentMap<String, String> BLACK_LIST = TokenBlacklist.getInstance();
 
   @Override
   public String reissue(@NotNull final User user) {
     final String refreshToken = redisService.getValue(user.getUserEmail());
 
-    if (!JwtValidationUtils.isRefreshTokenValid(refreshToken)){
-      throw new TokenException("억세스 토큰 재발급 도중 리프레쉬 토큰이 정상적이지 않습니다.");
+    if (!JwtValidationUtils.isRefreshTokenValid(refreshToken)) {
+      throw new TokenException("리프레쉬 토큰이 정상적이지 않습니다.");
     }
     final String token = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
 
@@ -45,12 +44,12 @@ public final class TokenServiceImpl implements TokenService {
   }
 
   @Override
-  public void blacklistAccessToken(@NotNull final User user,
-                                   @NotNull final String authorization) {
-    if (JwtValidationUtils.hasValidJwtToken(authorization)) {
+  public void blacklistAccessToken(@NotNull final User user, @NotNull final String authorization) {
+    if (!JwtValidationUtils.hasValidJwtToken(authorization)) {
       throw new TokenException("엑세스 토큰이 존재하지 않거나 올바르지 않습니다.");
     }
-    final String prefixAuthorization = JwtUtils.replaceTokenPrefix(authorization);
-    BLACK_LIST.put(user.getUserEmail(), prefixAuthorization);
+    final String replacePrefixToken = JwtUtils.replaceTokenPrefix(authorization);
+    redisService.setValue(
+        user.getUserEmail() + JwtProperties.BLACKLIST_POSTFIX, replacePrefixToken);
   }
 }

@@ -2,8 +2,6 @@ package com.limited.sales.user.vo;
 
 import lombok.*;
 
-import java.io.Serializable;
-
 @Builder
 @Getter
 @NoArgsConstructor

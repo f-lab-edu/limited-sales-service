@@ -22,6 +22,6 @@ public class CustomAuthCheck extends AbstractHttpConfigurer<CustomAuthCheck, Htt
         builder.getSharedObject(AuthenticationManager.class);
     builder
         .addFilter(new JwtAuthenticationFilter(authenticationManager, redisService))
-        .addFilter(new JwtAuthorizationFilter(authenticationManager, userService));
+        .addFilter(new JwtAuthorizationFilter(authenticationManager, userService, redisService));
   }
 }

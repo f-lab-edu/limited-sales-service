@@ -41,7 +41,7 @@ public final class JwtValidationUtils {
 
   public static boolean hasValidJwtToken(final @NotNull String token) {
     if (token == null) {
-      return true;
+      return false;
     }
 
     return token.startsWith(JwtProperties.TOKEN_PREFIX);

@@ -2,13 +2,14 @@ package com.limited.sales.filter;
 
 import com.limited.sales.exception.sub.TokenException;
 import com.limited.sales.principal.PrincipalDetails;
-import com.limited.sales.token.TokenBlacklist;
+import com.limited.sales.redis.RedisService;
 import com.limited.sales.user.UserService;
 import com.limited.sales.user.vo.User;
 import com.limited.sales.utils.JwtProperties;
 import com.limited.sales.utils.JwtUtils;
 import com.limited.sales.utils.JwtValidationUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,12 +27,15 @@ import java.util.concurrent.ConcurrentMap;
 @Slf4j
 public final class JwtAuthorizationFilter extends BasicAuthenticationFilter {
   private final UserService userService;
-  private final ConcurrentMap<String, String> BLACK_LIST = TokenBlacklist.getInstance();
+  private final RedisService redisService;
 
   public JwtAuthorizationFilter(
-      AuthenticationManager authenticationManager, UserService userService) {
+      AuthenticationManager authenticationManager,
+      UserService userService,
+      RedisService redisService) {
     super(authenticationManager);
     this.userService = userService;
+    this.redisService = redisService;
   }
 
   @Override
@@ -40,7 +44,7 @@ public final class JwtAuthorizationFilter extends BasicAuthenticationFilter {
       throws IOException, ServletException {
     final String header = request.getHeader(JwtProperties.HEADER_STRING);
 
-    if (JwtValidationUtils.hasValidJwtToken(header)) {
+    if (!JwtValidationUtils.hasValidJwtToken(header)) {
       chain.doFilter(request, response);
       return;
     }
@@ -62,9 +66,9 @@ public final class JwtAuthorizationFilter extends BasicAuthenticationFilter {
   }
 
   private boolean checkBlacklistToken(
-      @NotNull final String prefixToken,
-      @NotNull final String userEmail) {
-    final String blackPrefixToken = BLACK_LIST.get(userEmail);
+      @NotNull final String prefixToken, @NotNull final String userEmail) {
+    final String blackPrefixToken =
+        redisService.getValue(userEmail + JwtProperties.BLACKLIST_POSTFIX);
     return prefixToken.equals(blackPrefixToken);
   }
 

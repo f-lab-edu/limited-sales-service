@@ -2,6 +2,8 @@ package com.limited.sales.user.vo;
 
 import lombok.*;
 
+import javax.validation.constraints.NotEmpty;
+
 @Builder
 @Getter
 @NoArgsConstructor

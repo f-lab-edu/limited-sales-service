@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.limited.sales.exception.sub.BadRequestException;
 import com.limited.sales.exception.sub.NoValidUserException;
+import com.limited.sales.exception.sub.NotAllowedClaimException;
 import com.limited.sales.user.vo.User;
 
 import javax.validation.constraints.NotNull;
@@ -13,15 +14,7 @@ import java.util.Optional;
 
 public final class JwtUtils {
   public static String createAccessToken(final @NotNull User user) {
-    Optional.ofNullable(user)
-        .orElseThrow(
-            () -> {
-              throw new NoValidUserException("사용자 정보가 없습니다.");
-            });
-
-    if (user.getUserEmail() == null || "".equals(user.getUserEmail())) {
-      throw new BadRequestException("사용자 이메일 값이 존재하지 않습니다.");
-    }
+    userDataValidation(user);
 
     return JWT.create()
         .withSubject(user.getUserEmail())
@@ -32,6 +25,8 @@ public final class JwtUtils {
   }
 
   public static String createRefreshToken(final @NotNull User user) {
+    userDataValidation(user);
+
     return JWT.create()
         .withExpiresAt(
             new Date(System.currentTimeMillis() + JwtProperties.REFRESH_EXPIRATION_TIME_MS))
@@ -40,13 +35,52 @@ public final class JwtUtils {
   }
 
   public static Claim getClaim(final @NotNull String token, final @NotNull String claim) {
-    return JWT.require(Algorithm.HMAC512(JwtProperties.ACCESS_SECRET))
-        .build()
-        .verify(token)
-        .getClaim(claim);
+    claimParameterEmptyNullValidation(token, claim);
+
+    Claim claimData =
+        JWT.require(Algorithm.HMAC512(JwtProperties.ACCESS_SECRET))
+            .build()
+            .verify(token)
+            .getClaim(claim);
+
+    claimDataValidation(claimData);
+
+    return claimData;
   }
 
   public static String replaceTokenPrefix(final @NotNull String header) {
+    if(header == null || header.equals("")) {
+      throw new BadRequestException("토큰이 비었거나 존재하지 않습니다.");
+    }
+
     return header.replace(JwtProperties.TOKEN_PREFIX, "");
+  }
+
+  private static void claimDataValidation(Claim claimData) {
+    if (claimData.isNull() || claimData.asString().equals("")) {
+      throw new NotAllowedClaimException("검증되지 않은 Claim 이거나 Claim 가 존재하지 않습니다.");
+    }
+  }
+
+  private static void claimParameterEmptyNullValidation(String token, String claim) {
+    if ("".equals(claim) || claim == null) {
+      throw new BadRequestException("Claim 값이 존재하지 않습니다.");
+    }
+
+    if ("".equals(token) || token == null) {
+      throw new BadRequestException("token 값이 존재하지 않습니다.");
+    }
+  }
+
+  private static void userDataValidation(User user) {
+    Optional.ofNullable(user)
+        .orElseThrow(
+            () -> {
+              throw new NoValidUserException("사용자 정보가 없습니다.");
+            });
+
+    if (user.getUserEmail() == null || "".equals(user.getUserEmail())) {
+      throw new BadRequestException("사용자 이메일 값이 존재하지 않습니다.");
+    }
   }
 }

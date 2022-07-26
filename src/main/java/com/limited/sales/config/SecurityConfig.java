@@ -1,27 +1,20 @@
 package com.limited.sales.config;
 
-import com.limited.sales.filter.CustomLogoutHandlerFilter;
+import com.limited.sales.filter.JwtLogoutHandlerFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
   private final CustomAuthCheck customAuthCheck;
-  private final CustomLogoutHandlerFilter customLogoutHandlerFilter;
+  private final JwtLogoutHandlerFilter jwtLogoutHandlerFilter;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -41,7 +34,7 @@ public class SecurityConfig {
             logout ->
                 logout
                     .logoutUrl("/logout")
-                    .addLogoutHandler(customLogoutHandlerFilter)
+                    .addLogoutHandler(jwtLogoutHandlerFilter)
                     .logoutSuccessHandler(
                         (request, response, authentication) -> {
                           response.setStatus(200);

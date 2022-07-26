@@ -4,10 +4,17 @@
 
 <mapper namespace="com.limited.sales.user.UserMapper">
 
-    <select id="checkEmailDuplication" resultType="int">
+    <select id="checkEmailDuplication" resultType="boolean">
         SELECT COUNT(*)
         FROM user
         WHERE user_email = #{userEmail}
+    </select>
+
+    <select id="checkPassword" resultType="boolean">
+        SELECT COUNT(*)
+        FROM user
+        WHERE user_email = #{userEmail}
+        AND user_password = #{userPassword}
     </select>
 
     <select id="hasUser" resultType="boolean">
@@ -18,12 +25,18 @@
     </select>
 
 
-    <select id="findByUser" resultType="com.limited.sales.user.vo.User">
+    <select id="findByEmail" resultType="com.limited.sales.user.vo.User">
         SELECT user_email
              , user_password
              , user_cellphone
              , user_role
              , use_yn
+        FROM user
+        WHERE user_email = #{userEmail}
+    </select>
+
+    <select id="existOfUserEmail" resultType="boolean">
+        SELECT count(*)
         FROM user
         WHERE user_email = #{userEmail}
     </select>

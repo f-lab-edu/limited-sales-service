@@ -1,9 +1,9 @@
 package com.limited.sales.user;
 
 import com.limited.sales.config.Constant;
+import com.limited.sales.exception.sub.BadRequestException;
 import com.limited.sales.exception.sub.DuplicatedIdException;
 import com.limited.sales.exception.sub.NoValidUserException;
-import com.limited.sales.exception.sub.SignException;
 import com.limited.sales.user.vo.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -23,18 +24,26 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void signUp(final User user) {
-    final boolean isValidExistUser = hasUser(user);
-    if (isValidExistUser) {
+    Optional.ofNullable(user)
+        .map(User::getUserEmail)
+        .filter(v -> v.length() != 0)
+        .orElseThrow(() -> new BadRequestException("이메일이 존재하지 않거나 입력하지 않았습니다."));
+    Optional.of(user)
+        .map(User::getUserPassword)
+        .filter(v -> v.length() != 0)
+        .orElseThrow(() -> new BadRequestException("비밀번호가 존재하지 않거나 입력하지 않았습니다."));
+
+    if (hasUser(user)) {
       throw new DuplicatedIdException("이미 존재하는 계정입니다.");
     }
 
     final User newUser =
         User.builder()
-            .userCellphone(user.getUserCellphone())
             .userEmail(user.getUserEmail())
+            .userPassword(bCryptPasswordEncoder.encode(user.getUserPassword()))
+            .userCellphone(user.getUserCellphone())
             .userRole(user.getUserRole())
             .useYn(user.getUseYn())
-            .userPassword(bCryptPasswordEncoder.encode(user.getUserPassword()))
             .build();
 
     userMapper.insertUser(newUser);
@@ -42,18 +51,24 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional(readOnly = true)
-  public boolean checkPassword(@NotNull final String userPassword) {
-    final String userPasswordEncode = bCryptPasswordEncoder.encode(userPassword);
-    return userMapper.checkPassword(userPasswordEncode);
+  public boolean checkPassword(@NotNull User currentUser, @NotNull final String currentPassword) {
+    Optional.ofNullable(currentPassword)
+        .filter(v -> v.length() != 0)
+        .orElseThrow(
+            () -> {
+              throw new BadRequestException("현재 패스워드를 입력하지 않았습니다.");
+            });
+
+    return bCryptPasswordEncoder.matches(currentPassword, currentUser.getUserPassword());
   }
 
   @Override
   @Transactional(readOnly = true)
-  public int checkEmailDuplication(final User user) {
-    final String userEmail = user.getUserEmail();
+  public boolean checkEmailDuplication(final User user) {
+    final String userEmail = Optional.ofNullable(user.getUserEmail()).orElse("");
 
-    if (userEmail == null || "".equals(userEmail)) {
-      throw new SignException("이메일이 존재 하지 않습니다.");
+    if ("".equals(userEmail)) {
+      throw new BadRequestException("이메일이 존재 하지 않습니다.");
     }
 
     return userMapper.checkEmailDuplication(user);
@@ -62,37 +77,55 @@ public class UserServiceImpl implements UserService {
   @Override
   public int deleteUser(final User user) {
     final boolean isValidExistUser = hasUser(user);
-    if (isValidExistUser) {
+    if (!isValidExistUser) {
       throw new NoValidUserException("계정이 존재하지 않습니다.");
     }
+
     return userMapper.deleteUser(user);
   }
 
   @Override
-  public int changePassword(final User user) {
-    final User foundByEmail = userMapper.findByEmail(user.getUserEmail());
-    if (foundByEmail == null) {
+  public int changePassword(final User currentUser, Map<String, String> changeData) {
+    final Optional<String> maybeData = Optional.ofNullable(changeData.get("newPassword"));
+    maybeData
+        .map(String::length)
+        .filter(v -> v != 0)
+        .orElseThrow(
+            () -> {
+              throw new BadRequestException("변경할 패스워드가 없거나 잘못 입력했습니다.");
+            });
+
+    final User changeUser =
+        User.builder()
+            .userEmail(currentUser.getUserEmail())
+            .userPassword(changeData.get("newPassword"))
+            .build();
+
+    if (!userMapper.existOfUserEmail(changeUser.getUserEmail())) {
       throw new NoValidUserException("계정이 존재하지 않습니다.");
     }
-    return userMapper.changePassword(foundByEmail);
+    return userMapper.changePassword(changeUser);
   }
 
   @Override
   public int changeUserInformation(final User user, final User targetUser) {
-    final Optional<String> optUserEmail = Optional.ofNullable(user.getUserEmail());
-    final Optional<String> optTargetUserUserCellphone =
-        Optional.ofNullable(targetUser.getUserCellphone());
+    Optional.ofNullable(user)
+        .map(User::getUserEmail)
+        .filter(v -> v.length() != 0)
+        .orElseThrow(
+            () -> {
+              throw new BadRequestException("이메일이 존재하지 않습니다.");
+            });
 
-    optUserEmail.orElseThrow(
-        () -> {
-          throw new NoValidUserException("이메일이 파라미터에 값이 없습니다.");
-        });
-    optTargetUserUserCellphone.orElseThrow(
-        () -> {
-          throw new NoValidUserException("전화번호 파라미터에 값이 없습니다.");
-        });
+    Optional.ofNullable(targetUser)
+        .map(User::getUserCellphone)
+        .filter(v -> v.length() != 0)
+        .orElseThrow(
+            () -> {
+              throw new BadRequestException("전화번호가 존재하지 않습니다.");
+            });
 
-    return userMapper.changeUserInformation(optUserEmail.get(), optTargetUserUserCellphone.get());
+    return userMapper.changeUserInformation(user.getUserEmail(), targetUser.getUserCellphone());
   }
 
   @Transactional(readOnly = true)
@@ -121,7 +154,7 @@ public class UserServiceImpl implements UserService {
     if (Constant.ADMIN_CODE.equals(adminCode)) {
       userMapper.changeUserRoleToAdmin(byUser.getUserEmail());
     } else {
-      throw new RuntimeException("관리자 코드가 없거나 잘못 입력했습니다.");
+      throw new BadRequestException("관리자 코드가 없거나 잘못 입력했습니다.");
     }
   }
 }

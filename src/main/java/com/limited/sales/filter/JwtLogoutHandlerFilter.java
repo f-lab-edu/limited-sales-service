@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CustomLogoutHandlerFilter implements LogoutHandler {
+public class JwtLogoutHandlerFilter implements LogoutHandler {
   private final TokenService tokenService;
 
   @Override

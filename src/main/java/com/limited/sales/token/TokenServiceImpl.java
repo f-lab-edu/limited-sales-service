@@ -1,6 +1,7 @@
 package com.limited.sales.token;
 
 import com.limited.sales.config.Constant;
+import com.limited.sales.config.LazyHolderObject;
 import com.limited.sales.exception.sub.TokenException;
 import com.limited.sales.redis.RedisService;
 import com.limited.sales.user.vo.User;
@@ -28,7 +29,7 @@ public final class TokenServiceImpl implements TokenService {
     final String token = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
 
     final TokenVo tokenVo = TokenVo.builder().accessToken(token).build();
-    return Constant.getGson().toJson(tokenVo);
+    return LazyHolderObject.getGson().toJson(tokenVo);
   }
 
   @Override

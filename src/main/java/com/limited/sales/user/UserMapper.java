@@ -21,7 +21,7 @@ public interface UserMapper {
    * @param user
    * @return
    */
-  int checkEmailDuplication(final User user);
+  boolean checkEmailDuplication(final User user);
 
   /**
    * 회원 탈퇴 update
@@ -68,6 +68,13 @@ public interface UserMapper {
   User findByEmail(@Param("userEmail") final String userEmail);
 
   /**
+   * 사용자 이메일 존재 여부
+   * @param userEmail
+   * @return boolean
+   */
+  boolean existOfUserEmail(@Param("userEmail") final String userEmail);
+
+  /**
    * 관리자로 권한 변경
    *
    * @param userEmail
@@ -80,5 +87,5 @@ public interface UserMapper {
    * @param userPassword
    * @return
    */
-  boolean checkPassword(@Param("userPassword") final String userPassword);
+  boolean checkPassword(@Param("userEmail") final String userEmail, @Param("userPassword") final String userPassword);
 }

@@ -1,12 +1,13 @@
 package com.limited.sales.user;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.limited.sales.utils.JwtProperties;
+import com.limited.sales.config.Constant;
+import com.limited.sales.config.LazyHolderObject;
 import com.limited.sales.user.vo.User;
+import com.limited.sales.utils.JwtProperties;
 import com.limited.sales.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,11 +16,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.WebApplicationContext;
 
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,170 +31,423 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @Slf4j
 class UserControllerTest {
-  @Autowired private WebApplicationContext context;
 
-  @Autowired MockMvc mockMvc;
+  private final Gson gson = LazyHolderObject.getGson();
+  @Autowired private MockMvc mockMvc;
 
-  private String JwtAccessToken;
-
-  @BeforeEach
-  public void setup() {
-    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-
-    User user = User.builder().userEmail("test@test").userPassword("1234").build();
-
-    JwtUtils utils = new JwtUtils();
-    String accessTokenMethod = utils.createAccessToken(user);
-    JwtAccessToken = JwtProperties.TOKEN_PREFIX + accessTokenMethod;
-    log.info(JwtAccessToken);
-  }
-
+  /**
+   *
+   *
+   * <h1>이메일 중복 확인 기능</h1>
+   */
   @Test
-  @Rollback
-  void emailOverlapCheck() throws Exception {
-    User user = User.builder().userEmail("ohjeung@naver.com").build();
-    Gson gson = new Gson();
-    String toJson = gson.toJson(user);
-    log.info(toJson);
+  @DisplayName("UserController.이메일 중복체크 - 등록되지 않은 이메일")
+  void checkEmailDuplicationNo() throws Exception {
+    User user = User.builder().userEmail("cometo@naver.com").build();
 
     mockMvc
         .perform(
-            get("/user/email")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .characterEncoding("utf-8")
-                .content(toJson))
-        .andExpect(status().isOk())
+            get("/user/email").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is2xxSuccessful())
         .andDo(print());
   }
 
   @Test
+  @DisplayName("UserController.이메일 중복체크 - 이미 등록된 이메일 체크")
+  void checkEmailDuplicationYes() throws Exception {
+    User user = User.builder().userEmail("test@test").build();
+
+    mockMvc
+        .perform(
+            get("/user/email").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("UserController.이메일 중복체크 - 이메일 값 empty")
+  void checkEmailDuplicationEmailEmpty() throws Exception {
+    User user = User.builder().userEmail("").build();
+
+    mockMvc
+        .perform(
+            get("/user/email").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("UserController.이메일 중복체크 - 이메일 값 null")
+  void checkEmailDuplicationEmailNull() throws Exception {
+    User user = User.builder().userEmail(null).build();
+
+    mockMvc
+        .perform(
+            get("/user/email").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("UserController.이메일 중복체크 - body empty")
+  void checkEmailDuplicationBodyEmpty() throws Exception {
+    mockMvc
+        .perform(get("/user/email").content("").contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
+  /**
+   *
+   *
+   * <h1>회원가입 기능</h1>
+   */
+  @Test
   @Rollback
+  @DisplayName("UserController.회원가입 - 정상")
   void signUp() throws Exception {
     User user =
         User.builder()
-            .userEmail("ohejung@naver.com")
+            .userEmail("ohjeung@gamil.com")
             .userPassword("1234")
-            .useYn("Y")
-            .userCellphone("01088887777")
-            .userRole("")
+            .userCellphone("01011112222")
             .build();
 
-    Gson gson = new Gson();
-    String jsonUser = gson.toJson(user);
-
     mockMvc
-        .perform(
-            post("/user")
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("utf-8")
-                .content(jsonUser))
-        .andExpect(status().isOk())
+        .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is2xxSuccessful())
         .andDo(print());
   }
 
   @Test
   @Rollback
-  void userInfoUpdate() throws Exception {
-    User user = User.builder().userCellphone(null).build();
+  @DisplayName("UserController.회원가입 - 이메일 누락")
+  void signUpNoEmail() throws Exception {
+    User user = User.builder().userPassword("1234").userCellphone("01011112222").build();
 
-    Gson gson = new Gson();
-    String jsonUser = gson.toJson(user);
+    mockMvc
+        .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
+  @Test
+  @Rollback
+  @DisplayName("UserController.회원가입 - 비밀번호 누락")
+  void signUpNoPassword() throws Exception {
+    User user = User.builder().userEmail("ohjeung@gamil.com").userCellphone("01011112222").build();
+
+    mockMvc
+        .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
+  @Test
+  @Rollback
+  @DisplayName("UserController.회원가입 - 이메일 공백")
+  void signUpEmptyEmail() throws Exception {
+    User user =
+        User.builder().userEmail("").userPassword("1234").userCellphone("01011112222").build();
+    mockMvc
+        .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
+  @Test
+  @Rollback
+  @DisplayName("UserController.회원가입 - 비밀번호 공백")
+  void signUpEmptyPassword() throws Exception {
+    User user =
+        User.builder()
+            .userEmail("ohjeung@gamil.com")
+            .userPassword("")
+            .userCellphone("01011112222")
+            .build();
+    mockMvc
+        .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
+  /**
+   *
+   *
+   * <h1>사용자 정보 수정 기능</h1>
+   */
+  @Test
+  @Rollback
+  @DisplayName("UserController.사용자 정보 수정 - 정보 수정 성공")
+  void updateUserInfo() throws Exception {
+    User user =
+        User.builder()
+            .userEmail("test@test")
+            .userPassword("1234")
+            .userCellphone("01022223333")
+            .build();
+
+    String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
 
     mockMvc
         .perform(
             patch("/user")
-                .header(JwtProperties.HEADER_STRING, this.JwtAccessToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("utf-8")
-                .content(jsonUser))
-        .andExpect(status().isBadRequest())
+                .header(JwtProperties.HEADER_STRING, prefixToken)
+                .content(gson.toJson(user))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is2xxSuccessful())
         .andDo(print());
   }
 
   @Test
   @Rollback
-  void userPasswordChange() throws Exception {
+  @DisplayName("UserController.사용자 정보 수정 - 엑세스 토큰 없음")
+  void updateUserNoToken() throws Exception {
+    User user =
+        User.builder()
+            .userEmail("test@test")
+            .userPassword("1234")
+            .userCellphone("01022223333")
+            .build();
+
+    mockMvc
+        .perform(patch("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
+  @Test
+  @Rollback
+  @DisplayName("UserController.사용자 정보 수정 - 중복된 사용자 정보 다시 수정하기")
+  void updateUserDuplicationInfo() throws Exception {
+    User user =
+        User.builder()
+            .userEmail("test@test")
+            .userPassword("1234")
+            .userCellphone("01011112222")
+            .build();
+
+    String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
+
+    mockMvc
+        .perform(
+            patch("/user")
+                .header(JwtProperties.HEADER_STRING, prefixToken)
+                .content(gson.toJson(user))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is2xxSuccessful())
+        .andDo(print());
+  }
+
+  @Test
+  @Rollback
+  @DisplayName("UserController.사용자 정보 수정 - 전화번호 데이터 NULL")
+  void updateUserNullCellphone() throws Exception {
     User user = User.builder().userEmail("test@test").userPassword("1234").build();
 
-    Gson gson = new Gson();
-    String jsonUser = gson.toJson(user);
+    String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
+
+    mockMvc
+        .perform(
+            patch("/user")
+                .header(JwtProperties.HEADER_STRING, prefixToken)
+                .content(gson.toJson(user))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
+  @Test
+  @Rollback
+  @DisplayName("UserController.사용자 정보 수정 - 전화번호 데이터 empty")
+  void updateUserEmptyCellphone() throws Exception {
+    User user =
+        User.builder().userCellphone("").userEmail("test@test").userPassword("1234").build();
+
+    String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
+
+    mockMvc
+        .perform(
+            patch("/user")
+                .header(JwtProperties.HEADER_STRING, prefixToken)
+                .content(gson.toJson(user))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
+  /**
+   *
+   *
+   * <h1>사용자 비밀번호 변경 기능</h1>
+   */
+  @Test
+  @Rollback
+  @DisplayName("UserController.비밀번호 변경 - 정상적으로 패스워드 변경")
+  void changeUserPassword() throws Exception {
+    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    Map<String, String> userData = new HashMap<>();
+    String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
+    String currentPassword = "1234";
+
+    userData.put("newPassword", "5678");
 
     mockMvc
         .perform(
             patch("/user/password")
-                .header(JwtProperties.HEADER_STRING, this.JwtAccessToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("utf-8")
-                .content(jsonUser))
-        .andExpect(status().isOk())
+                .header("current_password", currentPassword)
+                .header(JwtProperties.HEADER_STRING, prefixToken)
+                .content(gson.toJson(userData))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is2xxSuccessful())
         .andDo(print());
   }
 
   @Test
   @Rollback
-  void userDelete() throws Exception {
+  @DisplayName("UserController.비밀번호 변경 - 현재 패스워드가 일치하지 않음")
+  void changeUserPasswordFail() throws Exception {
     User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    Map<String, String> userData = new HashMap<>();
+    String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
+    String currentPassword = "2929";
 
-    Gson gson = new Gson();
-    String jsonUser = gson.toJson(user);
+    userData.put("newPassword", "5678");
+
+    mockMvc
+        .perform(
+            patch("/user/password")
+                .header("current_password", currentPassword)
+                .header(JwtProperties.HEADER_STRING, prefixToken)
+                .content(gson.toJson(userData))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
+  @Test
+  @Rollback
+  @DisplayName("UserController.비밀번호 변경 - 현재 패스워드 입력하지 않음")
+  void changeUserCurrentPasswordEmpty() throws Exception {
+    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    Map<String, String> userData = new HashMap<>();
+    String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
+    String currentPassword = "";
+
+    userData.put("newPassword", "5678");
+
+    mockMvc
+        .perform(
+            patch("/user/password")
+                .header("current_password", currentPassword)
+                .header(JwtProperties.HEADER_STRING, prefixToken)
+                .content(gson.toJson(userData))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
+  @Test
+  @Rollback
+  @DisplayName("UserController.비밀번호 변경 - 새로운 비밀번호 empty")
+  void changeUserNewPasswordEmpty() throws Exception {
+    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    Map<String, String> userData = new HashMap<>();
+    String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
+    String currentPassword = "1234";
+
+    userData.put("newPassword", "");
+
+    mockMvc
+        .perform(
+            patch("/user/password")
+                .header("current_password", currentPassword)
+                .header(JwtProperties.HEADER_STRING, prefixToken)
+                .content(gson.toJson(userData))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
+  @Test
+  @Rollback
+  @DisplayName("UserController.비밀번호 변경 - 새로운 비밀번호 null")
+  void changeUserNewPasswordNull() throws Exception {
+    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    Map<String, String> userData = new HashMap<>();
+    String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
+    String currentPassword = "1234";
+
+    userData.put("newPassword", null);
+
+    mockMvc
+        .perform(
+            patch("/user/password")
+                .header("current_password", currentPassword)
+                .header(JwtProperties.HEADER_STRING, prefixToken)
+                .content(gson.toJson(userData))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
+  /**
+   *
+   *
+   * <h1>사용자 삭제 기능</h1>
+   */
+  @Test
+  @Rollback
+  @DisplayName("UserController.회원탈퇴 - 탈퇴")
+  void deleteUser() throws Exception {
+    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
 
     mockMvc
         .perform(
             delete("/user")
-                .header(JwtProperties.HEADER_STRING, this.JwtAccessToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("utf-8")
-                .content(jsonUser))
-        .andExpect(status().isOk())
+                .header(JwtProperties.HEADER_STRING, prefixToken)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is2xxSuccessful())
+        .andDo(print());
+  }
+
+  /**
+   *
+   *
+   * <h1>사용자 권한 변경 기능</h1>
+   */
+  @Test
+  @Rollback
+  @DisplayName("UserController.관리자 - 관리자 권한 부여")
+  void changeUserRoleToAdmin() throws Exception {
+    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
+
+    mockMvc
+        .perform(
+            patch("/user/admin")
+                .header("AdminCode", Constant.ADMIN_CODE)
+                .header(JwtProperties.HEADER_STRING, prefixToken)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is2xxSuccessful())
         .andDo(print());
   }
 
   @Test
   @Rollback
-  void admin() throws Exception {
-    JsonObject jsonObject = new JsonObject();
-    jsonObject.addProperty("userEmail", "test@test");
-    jsonObject.addProperty("userPassword", "1234");
+  @DisplayName("UserController.관리자 - 관리자 코드 공백")
+  void changeUserRoleEmptyAdminCode() throws Exception {
+    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
 
     mockMvc
         .perform(
-            patch("/user/admin/limitedsale")
-                .header(JwtProperties.HEADER_STRING, this.JwtAccessToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("utf-8")
-                .content(jsonObject.toString()))
-        .andExpect(status().isOk())
-        .andDo(print());
-  }
-
-  @Test
-  void login() throws Exception {
-    JsonObject jsonObject = new JsonObject();
-    jsonObject.addProperty("userEmail", "ohjeung@naver.com");
-    jsonObject.addProperty("userPassword", "1234");
-
-    mockMvc
-        .perform(
-            post("/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("utf-8")
-                .content(jsonObject.toString()))
-        .andExpect(status().isOk())
-        .andDo(print());
-  }
-
-  @Test
-  @Rollback
-  void logout() throws Exception {
-    this.JwtAccessToken =
-        "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJvaGpldW5nQG5hdmVyLmNvbSIsInVzZXJFbWFpbCI6Im9oamV1bmdAbmF2ZXIuY29tIiwiZXhwIjoxNjU4NDYwOTY0fQ.t3R0b4KVrzpCes6nbot1kEN2c9MM4xEarsCswHbQimPOd6vLO1QGbOor6cbWKIXf6V3eooLt7sxNERKUEEaKJQ";
-    mockMvc
-        .perform(
-            post("/logout")
-                .header(JwtProperties.HEADER_STRING, this.JwtAccessToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("utf-8"))
-        .andExpect(status().isOk())
+            patch("/user/admin")
+                .header("AdminCode", "")
+                .header(JwtProperties.HEADER_STRING, prefixToken)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
         .andDo(print());
   }
 }

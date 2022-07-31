@@ -1,6 +1,5 @@
 package com.limited.sales.token;
 
-import com.limited.sales.config.Constant;
 import com.limited.sales.config.LazyHolderObject;
 import com.limited.sales.exception.sub.TokenException;
 import com.limited.sales.redis.RedisService;
@@ -12,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,9 +22,13 @@ public final class TokenServiceImpl implements TokenService {
   public String reissue(@NotNull final User user) {
     final String refreshToken = redisService.getValue(user.getUserEmail());
 
-    if (!JwtValidationUtils.isRefreshTokenValid(refreshToken)) {
-      throw new TokenException("리프레쉬 토큰이 정상적이지 않습니다.");
-    }
+    Optional.ofNullable(refreshToken)
+        .filter(JwtValidationUtils::isRefreshTokenValid)
+        .orElseThrow(
+            () -> {
+              throw new TokenException("리프레쉬 토큰이 정상적이지 않습니다.");
+            });
+
     final String token = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
 
     final TokenVo tokenVo = TokenVo.builder().accessToken(token).build();
@@ -34,21 +37,27 @@ public final class TokenServiceImpl implements TokenService {
 
   @Override
   public void deleteRefreshToken(@NotNull final User user) {
-    final String userEmail = user.getUserEmail();
     final String refreshToken = redisService.getValue(user.getUserEmail());
 
-    if (!JwtValidationUtils.isRefreshTokenValid(refreshToken)) {
-      throw new TokenException("재로그인이 필요합니다.");
-    }
+    Optional.ofNullable(refreshToken)
+        .filter(JwtValidationUtils::isRefreshTokenValid)
+        .orElseThrow(
+            () -> {
+              throw new TokenException("재로그인이 필요합니다.");
+            });
 
-    redisService.deleteValue(userEmail);
+    redisService.deleteValue(user.getUserEmail());
   }
 
   @Override
   public void blacklistAccessToken(@NotNull final User user, @NotNull final String authorization) {
-    if (!JwtValidationUtils.hasValidJwtToken(authorization)) {
-      throw new TokenException("엑세스 토큰이 존재하지 않거나 올바르지 않습니다.");
-    }
+    Optional.ofNullable(authorization)
+        .filter(JwtValidationUtils::hasValidJwtToken)
+        .orElseThrow(
+            () -> {
+              throw new TokenException("엑세스 토큰이 존재하지 않거나 올바르지 않습니다.");
+            });
+
     final String replacePrefixToken = JwtUtils.replaceTokenPrefix(authorization);
     redisService.setValue(
         user.getUserEmail() + JwtProperties.BLACKLIST_POSTFIX, replacePrefixToken);

@@ -1,6 +1,7 @@
 package com.limited.sales.user;
 
 import com.limited.sales.annotation.CurrentUser;
+import com.limited.sales.config.Constant;
 import com.limited.sales.exception.sub.BadRequestException;
 import com.limited.sales.exception.sub.DuplicatedIdException;
 import com.limited.sales.user.vo.User;
@@ -45,7 +46,7 @@ public class UserController {
   }
 
   @PatchMapping
-  @Secured({"ROLE_USER", "ROLE_ADMIN"})
+  @Secured({Constant.ROLE_USER, Constant.ROLE_ADMIN})
   public ResponseEntity<String> updateUserInfo(
       @CurrentUser User user, @RequestBody final User targetUser) {
     userService.changeUserInformation(user, targetUser);
@@ -53,7 +54,7 @@ public class UserController {
   }
 
   @PatchMapping("/password")
-  @Secured({"ROLE_USER", "ROLE_ADMIN"})
+  @Secured({Constant.ROLE_USER, Constant.ROLE_ADMIN})
   public ResponseEntity<String> changeUserPassword(
       @CurrentUser final User currentUser,
       @RequestBody final Map<String, String> changeData,
@@ -73,14 +74,14 @@ public class UserController {
   }
 
   @DeleteMapping
-  @Secured({"ROLE_USER", "ROLE_ADMIN"})
+  @Secured({Constant.ROLE_USER, Constant.ROLE_ADMIN})
   public ResponseEntity<String> deleteUser(@CurrentUser User user) {
     userService.deleteUser(user);
     return ResponseEntity.noContent().build();
   }
 
   @PatchMapping("/admin")
-  @Secured({"ROLE_USER", "ROLE_ADMIN"})
+  @Secured({Constant.ROLE_USER, Constant.ROLE_ADMIN})
   public ResponseEntity<String> changeUserRoleToAdmin(
       @CurrentUser User user, @RequestHeader("AdminCode") final String adminCode) {
     userService.changeUserRoleToAdmin(adminCode, user);

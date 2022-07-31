@@ -391,6 +391,27 @@ class UserControllerTest {
         .andDo(print());
   }
 
+  @Test
+  @Rollback
+  @DisplayName("UserController.비밀번호 변경 - 현재 비밀번호 null")
+  void changeUserCurrentPasswordNull() throws Exception {
+    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    Map<String, String> userData = new HashMap<>();
+    String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
+    String currentPassword = "1234";
+
+    userData.put("newPassword", null);
+
+    mockMvc
+        .perform(
+            patch("/user/password")
+                .header(JwtProperties.HEADER_STRING, prefixToken)
+                .content(gson.toJson(userData))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError())
+        .andDo(print());
+  }
+
   /**
    *
    *

@@ -13,6 +13,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotBlank;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,9 +28,8 @@ public class UserController {
   private final UserService userService;
 
   @GetMapping("/email")
-  public ResponseEntity<String> checkEmailDuplication(
-      @RequestBody final Optional<User> optionalUser) {
-    final User user = Optional.ofNullable(optionalUser).get().orElse(new User());
+  public ResponseEntity<String> checkEmailDuplication(@RequestBody final User parameterUser) {
+    final User user = Optional.ofNullable(parameterUser).orElse(new User());
 
     if (!userService.checkEmailDuplication(user)) {
       return ResponseEntity.noContent().build();
@@ -39,7 +39,7 @@ public class UserController {
   }
 
   @PostMapping
-  public ResponseEntity<String> signUp(@RequestBody final User user) {
+  public ResponseEntity<String> signUp(@RequestBody @Validated final User user) {
     userService.signUp(user);
     return ResponseEntity.noContent().build();
   }
@@ -55,10 +55,11 @@ public class UserController {
   @PatchMapping("/password")
   @Secured({"ROLE_USER", "ROLE_ADMIN"})
   public ResponseEntity<String> changeUserPassword(
-          @CurrentUser final User currentUser,
-          @RequestBody final Map<String, String> changeData,
-          @RequestHeader("current_password") @Validated final String currentPassword,
-          Errors error) {
+      @CurrentUser final User currentUser,
+      @RequestBody final Map<String, String> changeData,
+      @RequestHeader("current_password") @NotBlank(message = "현재 비밀번호를 입력하지 않았습니다.")
+          final String currentPassword,
+      Errors error) {
     if (error.hasErrors()) {
       throw new BadRequestException("비밀번호를 다시 입력해주세요.");
     }

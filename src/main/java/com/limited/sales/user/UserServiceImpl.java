@@ -24,15 +24,6 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void signUp(final User user) {
-    Optional.ofNullable(user)
-        .map(User::getUserEmail)
-        .filter(v -> v.length() != 0)
-        .orElseThrow(() -> new BadRequestException("이메일이 존재하지 않거나 입력하지 않았습니다."));
-    Optional.of(user)
-        .map(User::getUserPassword)
-        .filter(v -> v.length() != 0)
-        .orElseThrow(() -> new BadRequestException("비밀번호가 존재하지 않거나 입력하지 않았습니다."));
-
     if (hasUser(user)) {
       throw new DuplicatedIdException("이미 존재하는 계정입니다.");
     }
@@ -51,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional(readOnly = true)
-  public boolean checkPassword(@NotNull User currentUser, @NotNull final String currentPassword) {
+  public boolean checkPassword(final User currentUser, final String currentPassword) {
     Optional.ofNullable(currentPassword)
         .filter(v -> v.length() != 0)
         .orElseThrow(
@@ -65,21 +56,25 @@ public class UserServiceImpl implements UserService {
   @Override
   @Transactional(readOnly = true)
   public boolean checkEmailDuplication(final User user) {
-    final String userEmail = Optional.ofNullable(user.getUserEmail()).orElse("");
-
-    if ("".equals(userEmail)) {
-      throw new BadRequestException("이메일이 존재 하지 않습니다.");
-    }
+    Optional.ofNullable(user)
+        .map(User::getUserEmail)
+        .filter(v -> v.length() != 0)
+        .orElseThrow(
+            () -> {
+              throw new BadRequestException("이메일이 존재 하지 않습니다.");
+            });
 
     return userMapper.checkEmailDuplication(user);
   }
 
   @Override
   public int deleteUser(final User user) {
-    final boolean isValidExistUser = hasUser(user);
-    if (!isValidExistUser) {
-      throw new NoValidUserException("계정이 존재하지 않습니다.");
-    }
+    Optional.ofNullable(user)
+        .map(this::hasUser)
+        .orElseThrow(
+            () -> {
+              throw new NoValidUserException("계정이 존재하지 않습니다.");
+            });
 
     return userMapper.deleteUser(user);
   }
@@ -88,8 +83,7 @@ public class UserServiceImpl implements UserService {
   public int changePassword(final User currentUser, Map<String, String> changeData) {
     final Optional<String> maybeData = Optional.ofNullable(changeData.get("newPassword"));
     maybeData
-        .map(String::length)
-        .filter(v -> v != 0)
+        .filter(v -> v.length() != 0)
         .orElseThrow(
             () -> {
               throw new BadRequestException("변경할 패스워드가 없거나 잘못 입력했습니다.");
@@ -136,11 +130,14 @@ public class UserServiceImpl implements UserService {
 
   @Transactional(readOnly = true)
   @Override
-  public User findByEmail(@NotNull final String userEmail) {
+  public User findByEmail(final String userEmail) {
     final User foundByEmail = userMapper.findByEmail(userEmail);
-    if (foundByEmail == null) {
-      throw new NoValidUserException("계정이 존재하지 않습니다.");
-    }
+
+    Optional.ofNullable(foundByEmail)
+        .orElseThrow(
+            () -> {
+              throw new NoValidUserException("계정이 존재하지 않습니다.");
+            });
 
     return foundByEmail;
   }
@@ -148,13 +145,20 @@ public class UserServiceImpl implements UserService {
   @Override
   public void changeUserRoleToAdmin(@NotNull final String adminCode, @NotNull final User user) {
     final User byUser = userMapper.findByEmail(user.getUserEmail());
-    if (byUser == null) {
-      throw new NoValidUserException("계정이 존재하지 않습니다.");
-    }
-    if (Constant.ADMIN_CODE.equals(adminCode)) {
-      userMapper.changeUserRoleToAdmin(byUser.getUserEmail());
-    } else {
-      throw new BadRequestException("관리자 코드가 없거나 잘못 입력했습니다.");
-    }
+    Optional.ofNullable(adminCode)
+        .filter(v -> v.length() != 0)
+        .filter(Constant.ADMIN_CODE::equals)
+        .orElseThrow(
+            () -> {
+              throw new BadRequestException("관리자 코드가 없거나 잘못 입력했습니다.");
+            });
+
+    Optional.ofNullable(byUser)
+        .orElseThrow(
+            () -> {
+              throw new NoValidUserException("계정이 존재하지 않습니다.");
+            });
+
+    userMapper.changeUserRoleToAdmin(byUser.getUserEmail());
   }
 }

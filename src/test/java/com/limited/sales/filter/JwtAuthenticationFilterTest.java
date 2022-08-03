@@ -37,7 +37,7 @@ class JwtAuthenticationFilterTest {
   @Test
   @DisplayName("JWT인증필터 - 정상적으로 로그인 성공시")
   void attemptAuthentication_And_SuccessfulAuthentication() throws Exception {
-    User user = User.builder().userEmail("ohjeung@naver.com").userPassword("1234").build();
+    User user = User.builder().email("ohjeung@naver.com").password("1234").build();
     String authorization =
         mockMvc
             .perform(post("/login").content(gson.toJson(user)))
@@ -55,7 +55,7 @@ class JwtAuthenticationFilterTest {
   @Test
   @DisplayName("JWT인증필터 - 로그인 정보가 empty")
   void attemptAuthentication_And_SuccessfulAuthentication_Empty() throws Exception {
-    User user = User.builder().userEmail("").userPassword("").build();
+    User user = User.builder().email("").password("").build();
     String authorization =
         mockMvc
             .perform(post("/login").content(gson.toJson(user)))
@@ -72,7 +72,7 @@ class JwtAuthenticationFilterTest {
   @Test
   @DisplayName("JWT인증필터 - 로그인 정보가 null")
   void attemptAuthentication_And_SuccessfulAuthentication_Null() throws Exception {
-    User user = User.builder().userEmail(null).userPassword(null).build();
+    User user = User.builder().email(null).password(null).build();
     String authorization =
         mockMvc
             .perform(post("/login").content(gson.toJson(user)))
@@ -106,7 +106,7 @@ class JwtAuthenticationFilterTest {
   @Test
   @DisplayName("JWT인증필터 - User 비밀번호 null")
   void attemptAuthentication_And_SuccessfulAuthentication_PasswordNull() throws Exception {
-    User user = User.builder().userEmail("ohjeung@naver.com").userPassword(null).build();
+    User user = User.builder().email("ohjeung@naver.com").password(null).build();
     String authorization =
         mockMvc
             .perform(post("/login").content(gson.toJson(user)))
@@ -123,7 +123,7 @@ class JwtAuthenticationFilterTest {
   @Test
   @DisplayName("JWT인증필터 - User 이메일 null")
   void attemptAuthentication_And_SuccessfulAuthentication_EmailNull() throws Exception {
-    User user = User.builder().userEmail(null).userPassword("1234").build();
+    User user = User.builder().email(null).password("1234").build();
     String authorization =
         mockMvc
             .perform(post("/login").content(gson.toJson(user)))

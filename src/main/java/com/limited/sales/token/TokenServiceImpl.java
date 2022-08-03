@@ -1,5 +1,6 @@
 package com.limited.sales.token;
 
+import com.limited.sales.config.Constant;
 import com.limited.sales.config.LazyHolderObject;
 import com.limited.sales.exception.sub.TokenException;
 import com.limited.sales.redis.RedisService;
@@ -20,7 +21,7 @@ public final class TokenServiceImpl implements TokenService {
 
   @Override
   public String reissue(@NotNull final User user) {
-    final String refreshToken = redisService.getValue(user.getUserEmail());
+    final String refreshToken = redisService.getValue(user.getEmail());
 
     Optional.ofNullable(refreshToken)
         .filter(JwtValidationUtils::isRefreshTokenValid)
@@ -37,7 +38,7 @@ public final class TokenServiceImpl implements TokenService {
 
   @Override
   public void deleteRefreshToken(@NotNull final User user) {
-    final String refreshToken = redisService.getValue(user.getUserEmail());
+    final String refreshToken = redisService.getValue(user.getEmail());
 
     Optional.ofNullable(refreshToken)
         .filter(JwtValidationUtils::isRefreshTokenValid)
@@ -46,7 +47,7 @@ public final class TokenServiceImpl implements TokenService {
               throw new TokenException("재로그인이 필요합니다.");
             });
 
-    redisService.deleteValue(user.getUserEmail());
+    redisService.deleteValue(user.getEmail());
   }
 
   @Override
@@ -60,6 +61,6 @@ public final class TokenServiceImpl implements TokenService {
 
     final String replacePrefixToken = JwtUtils.replaceTokenPrefix(authorization);
     redisService.setValue(
-        user.getUserEmail() + JwtProperties.BLACKLIST_POSTFIX, replacePrefixToken);
+        user.getEmail() + JwtProperties.BLACKLIST_POSTFIX, replacePrefixToken);
   }
 }

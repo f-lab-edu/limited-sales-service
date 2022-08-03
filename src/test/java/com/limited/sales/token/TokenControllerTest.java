@@ -35,7 +35,7 @@ class TokenControllerTest {
 
   @BeforeEach
   void setup() throws Exception {
-    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    User user = User.builder().email("test@test").password("1234").build();
 
     prefixAccessToken =
         mockMvc

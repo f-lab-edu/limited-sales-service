@@ -43,7 +43,7 @@ class UserControllerTest {
   @Test
   @DisplayName("UserController.이메일 중복체크 - 등록되지 않은 이메일")
   void checkEmailDuplicationNo() throws Exception {
-    User user = User.builder().userEmail("cometo@naver.com").build();
+    User user = User.builder().email("cometo@naver.com").build();
 
     mockMvc
         .perform(
@@ -55,7 +55,7 @@ class UserControllerTest {
   @Test
   @DisplayName("UserController.이메일 중복체크 - 이미 등록된 이메일 체크")
   void checkEmailDuplicationYes() throws Exception {
-    User user = User.builder().userEmail("test@test").build();
+    User user = User.builder().email("test@test").build();
 
     mockMvc
         .perform(
@@ -67,7 +67,7 @@ class UserControllerTest {
   @Test
   @DisplayName("UserController.이메일 중복체크 - 이메일 값 empty")
   void checkEmailDuplicationEmailEmpty() throws Exception {
-    User user = User.builder().userEmail("").build();
+    User user = User.builder().email("").build();
 
     mockMvc
         .perform(
@@ -79,7 +79,7 @@ class UserControllerTest {
   @Test
   @DisplayName("UserController.이메일 중복체크 - 이메일 값 null")
   void checkEmailDuplicationEmailNull() throws Exception {
-    User user = User.builder().userEmail(null).build();
+    User user = User.builder().email(null).build();
 
     mockMvc
         .perform(
@@ -108,9 +108,9 @@ class UserControllerTest {
   void signUp() throws Exception {
     User user =
         User.builder()
-            .userEmail("ohjeung@gamil.com")
-            .userPassword("1234")
-            .userCellphone("01011112222")
+            .email("ohjeung@gamil.com")
+            .password("1234")
+            .cellphone("01011112222")
             .build();
 
     mockMvc
@@ -123,7 +123,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.회원가입 - 이메일 누락")
   void signUpNoEmail() throws Exception {
-    User user = User.builder().userPassword("1234").userCellphone("01011112222").build();
+    User user = User.builder().password("1234").cellphone("01011112222").build();
 
     mockMvc
         .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
@@ -135,7 +135,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.회원가입 - 비밀번호 누락")
   void signUpNoPassword() throws Exception {
-    User user = User.builder().userEmail("ohjeung@gamil.com").userCellphone("01011112222").build();
+    User user = User.builder().email("ohjeung@gamil.com").cellphone("01011112222").build();
 
     mockMvc
         .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
@@ -148,7 +148,7 @@ class UserControllerTest {
   @DisplayName("UserController.회원가입 - 이메일 공백")
   void signUpEmptyEmail() throws Exception {
     User user =
-        User.builder().userEmail("").userPassword("1234").userCellphone("01011112222").build();
+        User.builder().email("").password("1234").cellphone("01011112222").build();
     mockMvc
         .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
@@ -161,9 +161,9 @@ class UserControllerTest {
   void signUpEmptyPassword() throws Exception {
     User user =
         User.builder()
-            .userEmail("ohjeung@gamil.com")
-            .userPassword("")
-            .userCellphone("01011112222")
+            .email("ohjeung@gamil.com")
+            .password("")
+            .cellphone("01011112222")
             .build();
     mockMvc
         .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
@@ -182,9 +182,9 @@ class UserControllerTest {
   void updateUserInfo() throws Exception {
     User user =
         User.builder()
-            .userEmail("test@test")
-            .userPassword("1234")
-            .userCellphone("01022223333")
+            .email("test@test")
+            .password("1234")
+            .cellphone("01022223333")
             .build();
 
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
@@ -205,9 +205,9 @@ class UserControllerTest {
   void updateUserNoToken() throws Exception {
     User user =
         User.builder()
-            .userEmail("test@test")
-            .userPassword("1234")
-            .userCellphone("01022223333")
+            .email("test@test")
+            .password("1234")
+            .cellphone("01022223333")
             .build();
 
     mockMvc
@@ -222,9 +222,9 @@ class UserControllerTest {
   void updateUserDuplicationInfo() throws Exception {
     User user =
         User.builder()
-            .userEmail("test@test")
-            .userPassword("1234")
-            .userCellphone("01011112222")
+            .email("test@test")
+            .password("1234")
+            .cellphone("01011112222")
             .build();
 
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
@@ -243,7 +243,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.사용자 정보 수정 - 전화번호 데이터 NULL")
   void updateUserNullCellphone() throws Exception {
-    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    User user = User.builder().email("test@test").password("1234").build();
 
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
 
@@ -262,7 +262,7 @@ class UserControllerTest {
   @DisplayName("UserController.사용자 정보 수정 - 전화번호 데이터 empty")
   void updateUserEmptyCellphone() throws Exception {
     User user =
-        User.builder().userCellphone("").userEmail("test@test").userPassword("1234").build();
+        User.builder().cellphone("").email("test@test").password("1234").build();
 
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
 
@@ -285,7 +285,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.비밀번호 변경 - 정상적으로 패스워드 변경")
   void changeUserPassword() throws Exception {
-    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    User user = User.builder().email("test@test").password("1234").build();
     Map<String, String> userData = new HashMap<>();
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
     String currentPassword = "1234";
@@ -307,7 +307,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.비밀번호 변경 - 현재 패스워드가 일치하지 않음")
   void changeUserPasswordFail() throws Exception {
-    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    User user = User.builder().email("test@test").password("1234").build();
     Map<String, String> userData = new HashMap<>();
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
     String currentPassword = "2929";
@@ -329,7 +329,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.비밀번호 변경 - 현재 패스워드 입력하지 않음")
   void changeUserCurrentPasswordEmpty() throws Exception {
-    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    User user = User.builder().email("test@test").password("1234").build();
     Map<String, String> userData = new HashMap<>();
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
     String currentPassword = "";
@@ -351,7 +351,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.비밀번호 변경 - 새로운 비밀번호 empty")
   void changeUserNewPasswordEmpty() throws Exception {
-    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    User user = User.builder().email("test@test").password("1234").build();
     Map<String, String> userData = new HashMap<>();
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
     String currentPassword = "1234";
@@ -373,7 +373,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.비밀번호 변경 - 새로운 비밀번호 null")
   void changeUserNewPasswordNull() throws Exception {
-    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    User user = User.builder().email("test@test").password("1234").build();
     Map<String, String> userData = new HashMap<>();
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
     String currentPassword = "1234";
@@ -395,7 +395,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.비밀번호 변경 - 현재 비밀번호 null")
   void changeUserCurrentPasswordNull() throws Exception {
-    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    User user = User.builder().email("test@test").password("1234").build();
     Map<String, String> userData = new HashMap<>();
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
     String currentPassword = "1234";
@@ -421,7 +421,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.회원탈퇴 - 탈퇴")
   void deleteUser() throws Exception {
-    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    User user = User.builder().email("test@test").password("1234").build();
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
 
     mockMvc
@@ -442,7 +442,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.관리자 - 관리자 권한 부여")
   void changeUserRoleToAdmin() throws Exception {
-    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    User user = User.builder().email("test@test").password("1234").build();
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
 
     mockMvc
@@ -459,7 +459,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.관리자 - 관리자 코드 공백")
   void changeUserRoleEmptyAdminCode() throws Exception {
-    User user = User.builder().userEmail("test@test").userPassword("1234").build();
+    User user = User.builder().email("test@test").password("1234").build();
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
 
     mockMvc

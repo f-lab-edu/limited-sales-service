@@ -30,11 +30,11 @@ public class UserServiceImpl implements UserService {
 
     final User newUser =
         User.builder()
-            .userEmail(user.getUserEmail())
-            .userPassword(bCryptPasswordEncoder.encode(user.getUserPassword()))
-            .userCellphone(user.getUserCellphone())
-            .userRole(user.getUserRole())
-            .useYn(user.getUseYn())
+            .cellphone(user.getCellphone())
+            .email(user.getEmail())
+            .role(user.getRole())
+            .status(user.getStatus())
+            .password(bCryptPasswordEncoder.encode(user.getPassword()))
             .build();
 
     userMapper.insertUser(newUser);
@@ -50,14 +50,14 @@ public class UserServiceImpl implements UserService {
               throw new BadRequestException("현재 패스워드를 입력하지 않았습니다.");
             });
 
-    return bCryptPasswordEncoder.matches(currentPassword, currentUser.getUserPassword());
+    return bCryptPasswordEncoder.matches(currentPassword, currentUser.getPassword());
   }
 
   @Override
   @Transactional(readOnly = true)
   public boolean checkEmailDuplication(final User user) {
     Optional.ofNullable(user)
-        .map(User::getUserEmail)
+        .map(User::getEmail)
         .filter(v -> v.length() != 0)
         .orElseThrow(
             () -> {
@@ -91,11 +91,11 @@ public class UserServiceImpl implements UserService {
 
     final User changeUser =
         User.builder()
-            .userEmail(currentUser.getUserEmail())
-            .userPassword(changeData.get("newPassword"))
+            .email(currentUser.getEmail())
+            .password(changeData.get("newPassword"))
             .build();
 
-    if (!userMapper.existOfUserEmail(changeUser.getUserEmail())) {
+    if (!userMapper.existOfUserEmail(changeUser.getEmail())) {
       throw new NoValidUserException("계정이 존재하지 않습니다.");
     }
     return userMapper.changePassword(changeUser);
@@ -104,7 +104,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public int changeUserInformation(final User user, final User targetUser) {
     Optional.ofNullable(user)
-        .map(User::getUserEmail)
+        .map(User::getEmail)
         .filter(v -> v.length() != 0)
         .orElseThrow(
             () -> {
@@ -112,14 +112,14 @@ public class UserServiceImpl implements UserService {
             });
 
     Optional.ofNullable(targetUser)
-        .map(User::getUserCellphone)
+        .map(User::getCellphone)
         .filter(v -> v.length() != 0)
         .orElseThrow(
             () -> {
               throw new BadRequestException("전화번호가 존재하지 않습니다.");
             });
 
-    return userMapper.changeUserInformation(user.getUserEmail(), targetUser.getUserCellphone());
+    return userMapper.changeUserInformation(user.getEmail(), targetUser.getCellphone());
   }
 
   @Transactional(readOnly = true)
@@ -144,7 +144,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void changeUserRoleToAdmin(@NotNull final String adminCode, @NotNull final User user) {
-    final User byUser = userMapper.findByEmail(user.getUserEmail());
+    final User byUser = userMapper.findByEmail(user.getEmail());
     Optional.ofNullable(adminCode)
         .filter(v -> v.length() != 0)
         .filter(Constant.ADMIN_CODE::equals)
@@ -159,6 +159,6 @@ public class UserServiceImpl implements UserService {
               throw new NoValidUserException("계정이 존재하지 않습니다.");
             });
 
-    userMapper.changeUserRoleToAdmin(byUser.getUserEmail());
+    userMapper.changeUserRoleToAdmin(byUser.getEmail());
   }
 }

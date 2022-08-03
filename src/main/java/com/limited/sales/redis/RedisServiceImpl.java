@@ -17,6 +17,7 @@ public final class RedisServiceImpl implements RedisService {
     valueOperations.set(key, data);
   }
 
+
   public void setValues(String key, String data, Duration duration) {
     ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
     valueOperations.set(key, data, duration);

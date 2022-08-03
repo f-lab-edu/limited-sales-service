@@ -43,7 +43,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
               .orElse(new User());
 
       final UsernamePasswordAuthenticationToken createdToken =
-          new UsernamePasswordAuthenticationToken(user.getUserEmail(), user.getUserPassword());
+          new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
 
       return authenticationManager.authenticate(createdToken);
     } catch (NullPointerException e) {
@@ -76,7 +76,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
       final String accessToken = JwtUtils.createAccessToken(principalDetails.getUser());
       final String refreshToken = JwtUtils.createRefreshToken(principalDetails.getUser());
-      final String userEmail = principalDetails.getUser().getUserEmail();
+      final String userEmail = principalDetails.getUser().getEmail();
 
       redisService.setValue(userEmail, refreshToken);
       response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + accessToken);

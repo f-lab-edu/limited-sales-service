@@ -40,7 +40,7 @@ class JwtLogoutHandlerFilterTest {
 
   @BeforeEach
   void setup() throws Exception {
-    User user = User.builder().userEmail("ohjeung@naver.com").userPassword("1234").build();
+    User user = User.builder().email("ohjeung@naver.com").password("1234").build();
 
     String token =
         mockMvc

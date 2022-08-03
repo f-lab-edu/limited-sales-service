@@ -17,10 +17,10 @@ public final class JwtUtils {
     userDataValidation(user);
 
     return JWT.create()
-        .withSubject(user.getUserEmail())
+        .withSubject(user.getEmail())
         .withExpiresAt(
             new Date(System.currentTimeMillis() + JwtProperties.ACCESS_EXPIRATION_TIME_MS))
-        .withClaim(JwtProperties.USER_EMAIL, user.getUserEmail())
+        .withClaim(JwtProperties.USER_EMAIL, user.getEmail())
         .sign(Algorithm.HMAC512(JwtProperties.ACCESS_SECRET));
   }
 
@@ -30,7 +30,7 @@ public final class JwtUtils {
     return JWT.create()
         .withExpiresAt(
             new Date(System.currentTimeMillis() + JwtProperties.REFRESH_EXPIRATION_TIME_MS))
-        .withClaim(JwtProperties.USER_EMAIL, user.getUserEmail())
+        .withClaim(JwtProperties.USER_EMAIL, user.getEmail())
         .sign(Algorithm.HMAC512(JwtProperties.REFRESH_SECRET));
   }
 
@@ -79,7 +79,7 @@ public final class JwtUtils {
               throw new NoValidUserException("사용자 정보가 없습니다.");
             });
 
-    if (user.getUserEmail() == null || "".equals(user.getUserEmail())) {
+    if (user.getEmail() == null || "".equals(user.getEmail())) {
       throw new BadRequestException("사용자 이메일 값이 존재하지 않습니다.");
     }
   }

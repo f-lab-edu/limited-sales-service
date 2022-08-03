@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.limited.sales.product.ProductMapper">
+
+    <insert id="saveProduct" parameterType="Product" useGeneratedKeys="true" keyProperty="productId" keyColumn="product_id">
+        INSERT INTO product (product_name,
+                             price,
+                             quantity,
+                             details,
+                             use_yn,
+                             file_group_id,
+                             create_date_time,
+                             sales_time,
+                             end_time)
+        VALUES (#{product.productName},
+                #{product.price},
+                #{product.quantity},
+                #{product.details},
+                #{product.useYn},
+                #{product.fileGroupId},
+                #{product.createDateTime},
+                #{product.salesTime},
+                #{product.endTime}
+                )
+    </insert>
+
+    <select id="findByProductId" parameterType="int" resultType="Product">
+        SELECT  product_id,
+                product_name,
+                price,
+                quantity,
+                details,
+                use_yn,
+                file_group_id,
+                create_date_time,
+                sales_time,
+                 end_time
+        FROM   product
+        WHERE  product_id = #{productId}
+    </select>
+
+
+
+</mapper>

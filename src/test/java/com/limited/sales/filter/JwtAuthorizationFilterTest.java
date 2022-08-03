@@ -42,7 +42,7 @@ class JwtAuthorizationFilterTest {
    * @return 토큰값
    */
   private String createTestToken(String email, String password) {
-    User user = User.builder().userEmail(email).userPassword(password).build();
+    User user = User.builder().email(email).email(password).build();
     return JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
   }
 

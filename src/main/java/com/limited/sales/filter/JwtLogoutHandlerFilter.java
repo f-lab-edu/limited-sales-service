@@ -25,7 +25,7 @@ public class JwtLogoutHandlerFilter implements LogoutHandler {
     final String header = request.getHeader(JwtProperties.HEADER_STRING);
     final String prefixToken = JwtUtils.replaceTokenPrefix(header);
     final String userEmail = JwtUtils.getClaim(prefixToken, JwtProperties.USER_EMAIL).asString();
-    final User user = User.builder().userEmail(userEmail).build();
+    final User user = User.builder().email(userEmail).build();
 
     tokenService.deleteRefreshToken(user);
     tokenService.blacklistAccessToken(user, header);

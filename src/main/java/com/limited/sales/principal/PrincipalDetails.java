@@ -20,17 +20,17 @@ public class PrincipalDetails implements UserDetails {
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     // TODO :: 한 계정에 ROLE_USER, ROLE_ADMIN 두 개의 권한을 갖도록 할 필요가 있음. ::
-    return Collections.singleton(new SimpleGrantedAuthority(user.getUserRole()));
+    return Collections.singleton(new SimpleGrantedAuthority(user.getRole()));
   }
 
   @Override
   public String getPassword() {
-    return user.getUserPassword();
+    return user.getPassword();
   }
 
   @Override
   public String getUsername() {
-    return user.getUserEmail();
+    return user.getEmail();
   }
 
   @Override

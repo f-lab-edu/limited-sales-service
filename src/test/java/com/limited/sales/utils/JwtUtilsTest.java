@@ -24,7 +24,7 @@ class JwtUtilsTest {
   @Test
   @DisplayName("엑세스 토큰 생성 - 정상적으로 토큰 생성")
   void createAccessToken() {
-    User testUser = User.builder().userEmail("test@test.com").build();
+    User testUser = User.builder().email("test@test.com").build();
     String accessToken = JwtUtils.createAccessToken(testUser);
     boolean result = JwtValidationUtils.isAccessTokenValid(accessToken);
 
@@ -34,7 +34,7 @@ class JwtUtilsTest {
   @Test
   @DisplayName("엑세스 토큰 생성 - email 공백")
   void createAccessTokenUserEmailEmpty() {
-    User testUser = User.builder().userEmail("").build();
+    User testUser = User.builder().email("").build();
 
     assertThatExceptionOfType(BadRequestException.class)
         .isThrownBy(
@@ -47,7 +47,7 @@ class JwtUtilsTest {
   @Test
   @DisplayName("엑세스 토큰 생성 - email NULL")
   void createAccessTokenUserEmailNull() {
-    User testUser = User.builder().userEmail(null).build();
+    User testUser = User.builder().email(null).build();
 
     assertThatExceptionOfType(BadRequestException.class)
         .isThrownBy(
@@ -73,7 +73,7 @@ class JwtUtilsTest {
   @Test
   @DisplayName("엑세스 토큰 생성 - 이메일 형식이 아닐 경우")
   void createAccessTokenUserNotEmailFormat() {
-    User testUser = User.builder().userEmail("test").build();
+    User testUser = User.builder().email("test").build();
 
     assertThatExceptionOfType(BadRequestException.class)
         .isThrownBy(
@@ -91,7 +91,7 @@ class JwtUtilsTest {
   @Test
   @DisplayName("리프레쉬 토큰 생성 - 정상적으로 토큰 생성")
   void createRefreshToken() {
-    User testUser = User.builder().userEmail("test@test.com").build();
+    User testUser = User.builder().email("test@test.com").build();
     String accessToken = JwtUtils.createRefreshToken(testUser);
     boolean result = JwtValidationUtils.isRefreshTokenValid(accessToken);
 
@@ -101,7 +101,7 @@ class JwtUtilsTest {
   @Test
   @DisplayName("리프레쉬 토큰 생성 - email 공백")
   void createRefreshTokenUserEmailEmpty() {
-    User testUser = User.builder().userEmail("").build();
+    User testUser = User.builder().email("").build();
 
     assertThatExceptionOfType(BadRequestException.class)
         .isThrownBy(
@@ -114,7 +114,7 @@ class JwtUtilsTest {
   @Test
   @DisplayName("리프레쉬 토큰 생성 - email NULL")
   void createRefreshTokenUserEmailNull() {
-    User testUser = User.builder().userEmail(null).build();
+    User testUser = User.builder().email(null).build();
 
     assertThatExceptionOfType(BadRequestException.class)
         .isThrownBy(
@@ -140,7 +140,7 @@ class JwtUtilsTest {
   @Test
   @DisplayName("리프레쉬 토큰 생성 - 이메일 형식이 아닐 경우")
   void createRefreshTokenUserNotEmailFormat() {
-    User testUser = User.builder().userEmail("test").build();
+    User testUser = User.builder().email("test").build();
 
     assertThatExceptionOfType(BadRequestException.class)
         .isThrownBy(
@@ -158,7 +158,7 @@ class JwtUtilsTest {
   @Test
   @DisplayName("클레임 반환 - 정상적으로 반환")
   void getClaim() {
-    User testUser = User.builder().userEmail("test@test.com").build();
+    User testUser = User.builder().email("test@test.com").build();
     String accessToken = JwtUtils.createAccessToken(testUser);
     Claim claim = JwtUtils.getClaim(accessToken, JwtProperties.USER_EMAIL);
 
@@ -168,14 +168,14 @@ class JwtUtilsTest {
   @Test
   @DisplayName("클레임 반환 - 이메일 공백")
   void getClaimEmptyEmail() {
-    User testUser = User.builder().userEmail("test@test").build();
+    User testUser = User.builder().email("test@test").build();
 
     String accessToken =
         JWT.create()
-            .withSubject(testUser.getUserEmail())
+            .withSubject(testUser.getEmail())
             .withExpiresAt(
                 new Date(System.currentTimeMillis() + JwtProperties.ACCESS_EXPIRATION_TIME_MS))
-            .withClaim(JwtProperties.USER_EMAIL, testUser.getUserEmail())
+            .withClaim(JwtProperties.USER_EMAIL, testUser.getEmail())
             .sign(Algorithm.HMAC512(JwtProperties.ACCESS_SECRET));
 
     assertThatExceptionOfType(BadRequestException.class)
@@ -189,13 +189,13 @@ class JwtUtilsTest {
   @Test
   @DisplayName("클레임 반환 - 이메일 Null")
   void getClaimNullEmail() {
-    User testUser = User.builder().userEmail("test@test").build();
+    User testUser = User.builder().email("test@test").build();
     String accessToken =
         JWT.create()
-            .withSubject(testUser.getUserEmail())
+            .withSubject(testUser.getEmail())
             .withExpiresAt(
                 new Date(System.currentTimeMillis() + JwtProperties.ACCESS_EXPIRATION_TIME_MS))
-            .withClaim(JwtProperties.USER_EMAIL, testUser.getUserEmail())
+            .withClaim(JwtProperties.USER_EMAIL, testUser.getEmail())
             .sign(Algorithm.HMAC512(JwtProperties.ACCESS_SECRET));
 
     assertThatExceptionOfType(BadRequestException.class)
@@ -231,14 +231,14 @@ class JwtUtilsTest {
   @Test
   @DisplayName("클레임 반환 - 토큰 안에 이메일 공백")
   void getClaimDecodedEmptyEmail() {
-    User testUser = User.builder().userEmail("").build();
+    User testUser = User.builder().email("").build();
 
     String accessToken =
         JWT.create()
-            .withSubject(testUser.getUserEmail())
+            .withSubject(testUser.getEmail())
             .withExpiresAt(
                 new Date(System.currentTimeMillis() + JwtProperties.ACCESS_EXPIRATION_TIME_MS))
-            .withClaim(JwtProperties.USER_EMAIL, testUser.getUserEmail())
+            .withClaim(JwtProperties.USER_EMAIL, testUser.getEmail())
             .sign(Algorithm.HMAC512(JwtProperties.ACCESS_SECRET));
 
     assertThatExceptionOfType(NotAllowedClaimException.class)
@@ -252,13 +252,13 @@ class JwtUtilsTest {
   @Test
   @DisplayName("클레임 반환 - 토큰 안에 이메일 Null")
   void getClaimDecodedNullEmail() {
-    User testUser = User.builder().userEmail(null).build();
+    User testUser = User.builder().email(null).build();
     String accessToken =
         JWT.create()
-            .withSubject(testUser.getUserEmail())
+            .withSubject(testUser.getEmail())
             .withExpiresAt(
                 new Date(System.currentTimeMillis() + JwtProperties.ACCESS_EXPIRATION_TIME_MS))
-            .withClaim(JwtProperties.USER_EMAIL, testUser.getUserEmail())
+            .withClaim(JwtProperties.USER_EMAIL, testUser.getEmail())
             .sign(Algorithm.HMAC512(JwtProperties.ACCESS_SECRET));
 
     assertThatExceptionOfType(NotAllowedClaimException.class)
@@ -277,7 +277,7 @@ class JwtUtilsTest {
   @Test
   @DisplayName("Prefix 제거 - 정상적으로 제거 후 토큰 반환")
   void replaceTokenPrefix() {
-    User testUser = User.builder().userEmail("test@test.com").build();
+    User testUser = User.builder().email("test@test.com").build();
     String prefixAccessToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(testUser);
     String accessToken = JwtUtils.replaceTokenPrefix(prefixAccessToken);
 

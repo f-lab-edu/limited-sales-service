@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -75,6 +77,25 @@ public final class ExceptionController {
     return ExceptionVo.builder().msg(e.getLocalizedMessage()).code(e.getClass().getName()).build();
   }
 
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ExceptionVo processValidationError(MethodArgumentNotValidException exception) {
+    BindingResult bindingResult = exception.getBindingResult();
+
+    StringBuilder builder = new StringBuilder();
+    for (FieldError fieldError : bindingResult.getFieldErrors()) {
+      builder.append("[");
+      builder.append(fieldError.getField());
+      builder.append("](은)는 ");
+      builder.append(fieldError.getDefaultMessage());
+      builder.append(" 입력된 값: [");
+      builder.append(fieldError.getRejectedValue());
+      builder.append("]");
+    }
+    return ExceptionVo.builder().msg(builder.toString()).build();
+  }
+
+  /** ExceptionVo JSON API 형태를 구성하기 위한 Vo */
   @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
   @ExceptionHandler({HttpMediaTypeException.class})
   public ExceptionVo notSupported(final HttpMediaTypeException e) {

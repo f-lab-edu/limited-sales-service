@@ -107,11 +107,7 @@ class UserControllerTest {
   @DisplayName("UserController.회원가입 - 정상")
   void signUp() throws Exception {
     User user =
-        User.builder()
-            .email("ohjeung@gamil.com")
-            .password("1234")
-            .cellphone("01011112222")
-            .build();
+        User.builder().email("ohjeung@gamil.com").password("1234").cellphone("01011112222").build();
 
     mockMvc
         .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
@@ -147,8 +143,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.회원가입 - 이메일 공백")
   void signUpEmptyEmail() throws Exception {
-    User user =
-        User.builder().email("").password("1234").cellphone("01011112222").build();
+    User user = User.builder().email("").password("1234").cellphone("01011112222").build();
     mockMvc
         .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
@@ -160,11 +155,7 @@ class UserControllerTest {
   @DisplayName("UserController.회원가입 - 비밀번호 공백")
   void signUpEmptyPassword() throws Exception {
     User user =
-        User.builder()
-            .email("ohjeung@gamil.com")
-            .password("")
-            .cellphone("01011112222")
-            .build();
+        User.builder().email("ohjeung@gamil.com").password("").cellphone("01011112222").build();
     mockMvc
         .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
@@ -180,12 +171,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.사용자 정보 수정 - 정보 수정 성공")
   void updateUserInfo() throws Exception {
-    User user =
-        User.builder()
-            .email("test@test")
-            .password("1234")
-            .cellphone("01022223333")
-            .build();
+    User user = User.builder().email("test@test").password("1234").cellphone("01022223333").build();
 
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
 
@@ -203,12 +189,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.사용자 정보 수정 - 엑세스 토큰 없음")
   void updateUserNoToken() throws Exception {
-    User user =
-        User.builder()
-            .email("test@test")
-            .password("1234")
-            .cellphone("01022223333")
-            .build();
+    User user = User.builder().email("test@test").password("1234").cellphone("01022223333").build();
 
     mockMvc
         .perform(patch("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
@@ -220,12 +201,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.사용자 정보 수정 - 중복된 사용자 정보 다시 수정하기")
   void updateUserDuplicationInfo() throws Exception {
-    User user =
-        User.builder()
-            .email("test@test")
-            .password("1234")
-            .cellphone("01011112222")
-            .build();
+    User user = User.builder().email("test@test").password("1234").cellphone("01011112222").build();
 
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
 
@@ -261,8 +237,7 @@ class UserControllerTest {
   @Rollback
   @DisplayName("UserController.사용자 정보 수정 - 전화번호 데이터 empty")
   void updateUserEmptyCellphone() throws Exception {
-    User user =
-        User.builder().cellphone("").email("test@test").password("1234").build();
+    User user = User.builder().cellphone("").email("test@test").password("1234").build();
 
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
 

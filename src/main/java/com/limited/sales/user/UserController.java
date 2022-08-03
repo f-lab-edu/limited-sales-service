@@ -58,7 +58,7 @@ public class UserController {
   public ResponseEntity<String> changeUserPassword(
       @CurrentUser final User currentUser,
       @RequestBody final Map<String, String> changeData,
-      @RequestHeader("current_password") @NotBlank(message = "현재 비밀번호를 입력하지 않았습니다.")
+      @RequestHeader(Constant.CurrentPassword) @NotBlank(message = "현재 비밀번호를 입력하지 않았습니다.")
           final String currentPassword,
       Errors error) {
     if (error.hasErrors()) {

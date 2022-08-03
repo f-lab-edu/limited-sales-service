@@ -30,8 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class TokenControllerTest {
 
   private final Gson gson = LazyHolderObject.getGson();
-  @Autowired private MockMvc mockMvc;
   String prefixAccessToken;
+  @Autowired private MockMvc mockMvc;
 
   @BeforeEach
   void setup() throws Exception {

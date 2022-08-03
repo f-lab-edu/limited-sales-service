@@ -8,15 +8,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class productServiceImpl implements ProductService {
 
-    private ProductMapper adminMapper;
+  private ProductMapper adminMapper;
 
-    /**
-     * 상품등록
-     * @param product
-     * @return
-     */
-    @Override
-    public void saveProduct(Product product) {
-        adminMapper.saveProduct(product);
-    }
+  /**
+   * 상품등록
+   *
+   * @param product
+   * @return
+   */
+  @Override
+  public void saveProduct(Product product) {
+    adminMapper.saveProduct(product);
+  }
 }

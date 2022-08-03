@@ -17,8 +17,9 @@ public interface ProductMapper {
 
   /**
    * 상품 정보 가져오기
+   *
    * @param productId
    * @return
    */
-  Product findByProductId (@Param("productId") final Integer productId);
+  Product findByProductId(@Param("productId") final Integer productId);
 }

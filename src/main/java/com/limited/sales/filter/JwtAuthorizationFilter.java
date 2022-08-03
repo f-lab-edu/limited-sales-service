@@ -9,7 +9,6 @@ import com.limited.sales.utils.JwtProperties;
 import com.limited.sales.utils.JwtUtils;
 import com.limited.sales.utils.JwtValidationUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.concurrent.ConcurrentMap;
 
 @Slf4j
 public final class JwtAuthorizationFilter extends BasicAuthenticationFilter {

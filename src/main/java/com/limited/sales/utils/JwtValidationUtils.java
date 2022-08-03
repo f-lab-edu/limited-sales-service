@@ -4,7 +4,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 
 import static com.auth0.jwt.JWT.require;
 

@@ -1,10 +1,7 @@
 package com.limited.sales.product.vo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -25,11 +22,29 @@ public class Product implements Serializable {
   private LocalDateTime salesTime;
   private LocalDateTime endTime;
 
-  /**
-   * 상품 상태 정보
-   */
-  public enum UseYn {
+  public Product(
+      String productName,
+      int price,
+      int quantity,
+      String details,
+      UseYn useYn,
+      int fileGroupId,
+      LocalDateTime createDateTime,
+      LocalDateTime salesTime,
+      LocalDateTime endTime) {
+    this.productName = productName;
+    this.price = price;
+    this.quantity = quantity;
+    this.details = details;
+    this.useYn = useYn;
+    this.fileGroupId = fileGroupId;
+    this.createDateTime = createDateTime;
+    this.salesTime = salesTime;
+    this.endTime = endTime;
+  }
 
+  /** 상품 상태 정보 */
+  public enum UseYn {
     Y("Y"),
     N("N");
 
@@ -42,17 +57,5 @@ public class Product implements Serializable {
     public String getValue() {
       return value;
     }
-  }
-
-  public Product(String productName, int price, int quantity, String details, UseYn useYn, int fileGroupId, LocalDateTime createDateTime, LocalDateTime salesTime, LocalDateTime endTime) {
-    this.productName = productName;
-    this.price = price;
-    this.quantity = quantity;
-    this.details = details;
-    this.useYn = useYn;
-    this.fileGroupId = fileGroupId;
-    this.createDateTime = createDateTime;
-    this.salesTime = salesTime;
-    this.endTime = endTime;
   }
 }

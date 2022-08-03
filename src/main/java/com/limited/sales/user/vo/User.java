@@ -12,17 +12,16 @@ import javax.validation.constraints.NotBlank;
 public class User {
   @NotBlank(message = "이메일을 입력하지 않았습니다.")
   private String email;
+
   @NotBlank(message = "비밀번호를 입력하지 않았습니다.")
   private String password;
+
   private String cellphone;
   private String role;
   private Status status;
 
-  /**
-   * 사용자 아이디 상태 정보
-   */
+  /** 사용자 아이디 상태 정보 */
   public enum Status {
-
     Y("Y"),
     N("N");
 
@@ -35,8 +34,5 @@ public class User {
     public String getValue() {
       return value;
     }
-
   }
-
-
 }

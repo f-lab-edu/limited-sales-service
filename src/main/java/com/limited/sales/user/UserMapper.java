@@ -69,6 +69,7 @@ public interface UserMapper {
 
   /**
    * 사용자 이메일 존재 여부
+   *
    * @param userEmail
    * @return boolean
    */
@@ -88,5 +89,6 @@ public interface UserMapper {
    * @param userPassword
    * @return
    */
-  boolean checkPassword(@Param("userEmail") final String userEmail, @Param("userPassword") final String userPassword);
+  boolean checkPassword(
+      @Param("userEmail") final String userEmail, @Param("userPassword") final String userPassword);
 }

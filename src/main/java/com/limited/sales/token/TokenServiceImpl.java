@@ -1,6 +1,5 @@
 package com.limited.sales.token;
 
-import com.limited.sales.config.Constant;
 import com.limited.sales.config.LazyHolderObject;
 import com.limited.sales.exception.sub.TokenException;
 import com.limited.sales.redis.RedisService;
@@ -60,7 +59,6 @@ public final class TokenServiceImpl implements TokenService {
             });
 
     final String replacePrefixToken = JwtUtils.replaceTokenPrefix(authorization);
-    redisService.setValue(
-        user.getEmail() + JwtProperties.BLACKLIST_POSTFIX, replacePrefixToken);
+    redisService.setValue(user.getEmail() + JwtProperties.BLACKLIST_POSTFIX, replacePrefixToken);
   }
 }

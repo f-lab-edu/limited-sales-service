@@ -14,7 +14,7 @@
         SELECT COUNT(*)
         FROM user
         WHERE email = #{email}
-        AND password = #{password}
+          AND password = #{password}
     </select>
 
     <select id="hasUser" resultType="boolean">

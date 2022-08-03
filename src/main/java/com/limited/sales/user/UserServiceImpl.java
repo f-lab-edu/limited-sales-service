@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public int changePassword(final User currentUser, Map<String, String> changeData) {
+  public int changePassword(final User currentUser, final Map<String, String> changeData) {
     final Optional<String> maybeData = Optional.ofNullable(changeData.get("newPassword"));
     maybeData
         .filter(v -> v.length() != 0)

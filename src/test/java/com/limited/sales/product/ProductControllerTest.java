@@ -1,6 +1,5 @@
 package com.limited.sales.product;
 
-import com.google.gson.Gson;
 import com.limited.sales.product.vo.Product;
 import com.limited.sales.redis.RedisService;
 import com.limited.sales.user.vo.User;
@@ -25,11 +24,7 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,15 +35,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 class ProductControllerTest {
 
-  @Autowired private WebApplicationContext context;
-
   @Autowired MockMvc mockMvc;
-
   @Autowired ProductMapper adminMapper;
-
-  @Autowired
-  RedisService redisService;
-
+  @Autowired RedisService redisService;
+  @Autowired private WebApplicationContext context;
   private String jwtAccessToken;
 
   @BeforeEach
@@ -90,23 +80,21 @@ class ProductControllerTest {
 
   // salesTime 보다 endTime이 앞설 경우.
 
-
-
   @Test
   @DisplayName("Redis 수량 저장")
   void SaveCount() throws Exception {
 
     Product product =
-            new Product(
-                    "맥북프로",
-                    1000000,
-                    1000,
-                    "16인치",
-                    Product.UseYn.Y,
-                    1,
-                    LocalDateTime.of(2022, 07, 22, 9, 00, 0),
-                    LocalDateTime.of(2022, 07, 22, 10, 00, 0),
-                    LocalDateTime.of(2022, 07, 22, 12, 00, 0));
+        new Product(
+            "맥북프로",
+            1000000,
+            1000,
+            "16인치",
+            Product.UseYn.Y,
+            1,
+            LocalDateTime.of(2022, 07, 22, 9, 00, 0),
+            LocalDateTime.of(2022, 07, 22, 10, 00, 0),
+            LocalDateTime.of(2022, 07, 22, 12, 00, 0));
 
     log.debug("ddddd={}", product);
 
@@ -116,19 +104,15 @@ class ProductControllerTest {
     log.debug("toJson={}", toJson);
 
     mockMvc
-            .perform(
-                    post("/product")
-                            .contentType(MediaType.APPLICATION_JSON_VALUE)
-                            .characterEncoding("utf-8")
-                            .content(toJson))
-            .andExpect(status().isCreated())
-            .andDo(print());
+        .perform(
+            post("/product")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .characterEncoding("utf-8")
+                .content(toJson))
+        .andExpect(status().isCreated())
+        .andDo(print());
 
-    //rollback
+    // rollback
     redisService.deleteValue(ProductProperties.PRODUCT_PREFIX + product.getProductId());
-
   }
-
-
-
 }

@@ -9,14 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.time.Duration;
-import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Slf4j
@@ -44,7 +40,9 @@ public class ProductController {
           ProductProperties.PRODUCT_PREFIX + product.getProductId(),
           String.valueOf(product.getQuantity()));
 
-      log.debug("value ============= {}", redisService.getValue(ProductProperties.PRODUCT_PREFIX + product.getProductId()));
+      log.debug(
+          "value ============= {}",
+          redisService.getValue(ProductProperties.PRODUCT_PREFIX + product.getProductId()));
     } else {
       new BadRequestException("상품 정보가 없습니다.");
     }

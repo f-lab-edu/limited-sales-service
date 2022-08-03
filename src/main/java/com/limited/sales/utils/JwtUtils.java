@@ -49,7 +49,7 @@ public final class JwtUtils {
   }
 
   public static String replaceTokenPrefix(final @NotNull String header) {
-    if(header == null || header.equals("")) {
+    if (header == null || header.equals("")) {
       throw new BadRequestException("토큰이 비었거나 존재하지 않습니다.");
     }
 

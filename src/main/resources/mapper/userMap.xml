@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.limited.sales.user.UserMapper">
+
+    <select id="checkEmailDuplication" resultType="boolean">
+        SELECT COUNT(*)
+        FROM user
+        WHERE email = #{email}
+    </select>
+
+    <select id="checkPassword" resultType="boolean">
+        SELECT COUNT(*)
+        FROM user
+        WHERE email = #{email}
+          AND password = #{password}
+    </select>
+
+    <select id="hasUser" resultType="boolean">
+        SELECT COUNT(*)
+        FROM user
+        WHERE email = #{email}
+          AND password = #{password}
+    </select>
+
+
+    <select id="findByEmail" resultType="com.limited.sales.user.vo.User">
+        SELECT email
+             , password
+             , cellphone
+             , role
+             , status
+        FROM user
+        WHERE email = #{email}
+    </select>
+
+    <select id="existOfUserEmail" resultType="boolean">
+        SELECT count(*)
+        FROM user
+        WHERE email = #{email}
+    </select>
+
+    <update id="deleteUser">
+        UPDATE user
+        SET status = 'N'
+        WHERE email = #{email}
+          AND password = #{password}
+    </update>
+
+    <update id="changePassword">
+        UPDATE user
+        SET password = #{password}
+        WHERE email = #{email}
+    </update>
+
+    <update id="changeUserInformation">
+        UPDATE user
+        SET cellphone = #{targetUserUserCellphone}
+        WHERE email = #{email}
+    </update>
+
+    <insert id="insertUser">
+        INSERT INTO user ( email
+                         , password
+                         , cellphone)
+        VALUES ( #{email}
+               , #{password}
+               , #{cellphone})
+    </insert>
+
+    <update id="changeUserRoleToAdmin">
+        UPDATE user
+        SET role = 'ROLE_ADMIN'
+        WHERE email = #{email}
+    </update>
+</mapper>

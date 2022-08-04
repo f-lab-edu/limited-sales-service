@@ -13,7 +13,7 @@ public interface ProductMapper {
    * @param product
    * @return
    */
-  int saveProduct(@Param("product") Product product);
+  int saveProduct(final Product product);
 
   /**
    * 상품 정보 가져오기
@@ -21,5 +21,5 @@ public interface ProductMapper {
    * @param productId
    * @return
    */
-  Product findByProductId(@Param("productId") final Integer productId);
+  Product findByProductId(final Integer productId);
 }

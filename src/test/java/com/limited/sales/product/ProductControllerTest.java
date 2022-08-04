@@ -1,5 +1,6 @@
 package com.limited.sales.product;
 
+import com.limited.sales.config.Constant;
 import com.limited.sales.product.vo.Product;
 import com.limited.sales.redis.RedisService;
 import com.limited.sales.user.vo.User;
@@ -36,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ProductControllerTest {
 
   @Autowired MockMvc mockMvc;
-  @Autowired ProductMapper adminMapper;
+  @Autowired ProductMapper productMapper;
   @Autowired RedisService redisService;
   @Autowired private WebApplicationContext context;
   private String jwtAccessToken;
@@ -44,11 +45,9 @@ class ProductControllerTest {
   @BeforeEach
   public void setup() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-
-    User user = User.builder().email("test@test").password("1234").role("ROLE_ADMIN").build();
-
-    JwtUtils utils = new JwtUtils();
-    String accessTokenMethod = utils.createAccessToken(user);
+    User user =
+        User.builder().email("test@test").password("1234").role(Constant.ROLE_ADMIN).build();
+    String accessTokenMethod = JwtUtils.createAccessToken(user);
     jwtAccessToken = JwtProperties.TOKEN_PREFIX + accessTokenMethod;
   }
 
@@ -65,20 +64,18 @@ class ProductControllerTest {
             1000000,
             1000,
             "16인치",
-            Product.UseYn.Y,
+            Product.Status.Y,
             1,
             LocalDateTime.of(2022, 07, 22, 9, 00, 0),
             LocalDateTime.of(2022, 07, 22, 10, 00, 0),
             LocalDateTime.of(2022, 07, 22, 12, 00, 0));
 
-    adminMapper.saveProduct(product);
-    int productId = product.getProductId();
-    Product resultProduct = adminMapper.findByProductId(productId);
+    productMapper.saveProduct(product);
+    int productId = product.getId();
+    Product resultProduct = productMapper.findByProductId(productId);
 
     assertThat(product).usingRecursiveComparison().isEqualTo(resultProduct);
   }
-
-  // salesTime 보다 endTime이 앞설 경우.
 
   @Test
   @DisplayName("Redis 수량 저장")
@@ -90,8 +87,8 @@ class ProductControllerTest {
             1000000,
             1000,
             "16인치",
-            Product.UseYn.Y,
-            1,
+            Product.Status.Y,
+            2,
             LocalDateTime.of(2022, 07, 22, 9, 00, 0),
             LocalDateTime.of(2022, 07, 22, 10, 00, 0),
             LocalDateTime.of(2022, 07, 22, 12, 00, 0));
@@ -113,6 +110,6 @@ class ProductControllerTest {
         .andDo(print());
 
     // rollback
-    redisService.deleteValue(ProductProperties.PRODUCT_PREFIX + product.getProductId());
+    redisService.deleteValue(ProductProperties.PRODUCT_PREFIX + product.getId());
   }
 }

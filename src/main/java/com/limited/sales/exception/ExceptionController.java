@@ -104,6 +104,7 @@ public final class ExceptionController {
     return ExceptionVo.builder().msg(e.getLocalizedMessage()).code(e.getClass().getName()).build();
   }
 
+  /*
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler({MethodArgumentNotValidException.class})
   public ExceptionVo methodArgumentNot(final MethodArgumentNotValidException e) {
@@ -113,6 +114,8 @@ public final class ExceptionController {
         .code(e.getClass().getName())
         .build();
   }
+
+   */
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler({MissingRequestHeaderException.class})

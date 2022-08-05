@@ -47,8 +47,7 @@ public interface UserMapper {
    * @return
    */
   int changeUserInformation(
-      @Param("userEmail") final String userEmail,
-      @Param("targetUserUserCellphone") final String targetUserUserCellphone);
+      final String email, @Param("targetUserUserCellphone") final String targetUserUserCellphone);
 
   /**
    * 아이디/패스워드 사용자 체크 select
@@ -62,26 +61,26 @@ public interface UserMapper {
   /**
    * 사용자 정보 가져오기
    *
-   * @param userEmail
+   * @param email
    * @return
    */
-  User findByEmail(@Param("userEmail") final String userEmail);
+  User findByEmail(final String email);
 
   /**
    * 사용자 이메일 존재 여부
    *
-   * @param userEmail
+   * @param email
    * @return boolean
    */
-  boolean existOfUserEmail(@Param("userEmail") final String userEmail);
+  boolean existOfUserEmail(final String email);
 
   /**
    * 관리자로 권한 변경
    *
-   * @param userEmail
+   * @param email
    * @return
    */
-  int changeUserRoleToAdmin(@Param("userEmail") final String userEmail);
+  int changeUserRoleToAdmin(final String email);
 
   /**
    * 사용자 패스워드 체크
@@ -89,6 +88,5 @@ public interface UserMapper {
    * @param userPassword
    * @return
    */
-  boolean checkPassword(
-      @Param("userEmail") final String userEmail, @Param("userPassword") final String userPassword);
+  boolean checkPassword(final String email, @Param("password") final String userPassword);
 }

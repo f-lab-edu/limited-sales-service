@@ -42,12 +42,12 @@ public interface UserMapper {
   /**
    * 내 정보 변경 update
    *
-   * @param userEmail
-   * @param targetUserUserCellphone
+   * @param email
+   * @param targetUserCellphone
    * @return
    */
   int changeUserInformation(
-      final String email, @Param("targetUserUserCellphone") final String targetUserUserCellphone);
+      @Param("email") final String email, @Param("targetUserCellphone") final String targetUserCellphone);
 
   /**
    * 아이디/패스워드 사용자 체크 select

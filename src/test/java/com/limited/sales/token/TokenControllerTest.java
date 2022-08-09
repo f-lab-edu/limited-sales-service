@@ -1,7 +1,7 @@
 package com.limited.sales.token;
 
 import com.google.gson.Gson;
-import com.limited.sales.config.LazyObjectHolder;
+import com.limited.sales.config.GsonSingleton;
 import com.limited.sales.user.vo.User;
 import com.limited.sales.utils.JwtProperties;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 class TokenControllerTest {
 
-  private final Gson gson = LazyObjectHolder.getGson();
+  private final Gson gson = GsonSingleton.getGson();
   String prefixAccessToken;
   @Autowired private MockMvc mockMvc;
 

@@ -1,7 +1,7 @@
 package com.limited.sales.filter;
 
 import com.google.gson.Gson;
-import com.limited.sales.config.LazyObjectHolder;
+import com.limited.sales.config.GsonSingleton;
 import com.limited.sales.user.vo.User;
 import com.limited.sales.utils.JwtProperties;
 import com.limited.sales.utils.JwtValidationUtils;
@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource("classpath:application.properties")
 class JwtAuthenticationFilterTest {
 
-  private final Gson gson = LazyObjectHolder.getGson();
+  private final Gson gson = GsonSingleton.getGson();
   @Autowired private MockMvc mockMvc;
 
   /**

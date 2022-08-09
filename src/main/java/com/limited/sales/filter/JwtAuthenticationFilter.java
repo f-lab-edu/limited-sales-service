@@ -1,7 +1,7 @@
 package com.limited.sales.filter;
 
 import com.google.gson.JsonSyntaxException;
-import com.limited.sales.config.LazyObjectHolder;
+import com.limited.sales.config.GsonSingleton;
 import com.limited.sales.exception.sub.LoginException;
 import com.limited.sales.exception.sub.NoValidUserException;
 import com.limited.sales.exception.sub.TokenException;
@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     try {
       final User user =
           Optional.ofNullable(
-                  LazyObjectHolder.getGson()
+                  GsonSingleton.getGson()
                       .fromJson(new InputStreamReader(request.getInputStream()), User.class))
               .orElse(new User());
 

@@ -1,7 +1,7 @@
 package com.limited.sales.filter;
 
 import com.google.gson.Gson;
-import com.limited.sales.config.LazyObjectHolder;
+import com.limited.sales.config.GsonSingleton;
 import com.limited.sales.exception.sub.BadRequestException;
 import com.limited.sales.exception.sub.TokenException;
 import com.limited.sales.redis.RedisService;
@@ -35,7 +35,7 @@ class JwtLogoutHandlerFilterTest {
 
   @Autowired MockMvc mockMvc;
   @Autowired RedisService redisService;
-  Gson gson = LazyObjectHolder.getGson();
+  Gson gson = GsonSingleton.getGson();
   String userAccessToken;
 
   @BeforeEach

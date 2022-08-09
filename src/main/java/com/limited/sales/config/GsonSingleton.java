@@ -2,7 +2,7 @@ package com.limited.sales.config;
 
 import com.google.gson.Gson;
 
-public class LazyObjectHolder {
+public class GsonSingleton {
   public static Gson getGson() {
     return GsonLazyHolder.gson;
   }

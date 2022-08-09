@@ -5,6 +5,7 @@ import com.limited.sales.config.Constant;
 import com.limited.sales.exception.sub.BadRequestException;
 import com.limited.sales.exception.sub.DuplicatedIdException;
 import com.limited.sales.user.vo.User;
+import com.limited.sales.utils.HttpResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -50,6 +51,7 @@ public class UserController {
   public ResponseEntity<String> updateUserInfo(
       @CurrentUser User user, @RequestBody final User targetUser) {
     userService.changeUserInformation(user, targetUser);
+    HttpResponse.builder().code(200).build();
     return ResponseEntity.noContent().build();
   }
 

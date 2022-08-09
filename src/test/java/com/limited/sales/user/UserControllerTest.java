@@ -2,7 +2,7 @@ package com.limited.sales.user;
 
 import com.google.gson.Gson;
 import com.limited.sales.config.Constant;
-import com.limited.sales.config.LazyHolderObject;
+import com.limited.sales.config.LazyObjectHolder;
 import com.limited.sales.user.vo.User;
 import com.limited.sales.utils.JwtProperties;
 import com.limited.sales.utils.JwtUtils;
@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 class UserControllerTest {
 
-  private final Gson gson = LazyHolderObject.getGson();
+  private final Gson gson = LazyObjectHolder.getGson();
   @Autowired private MockMvc mockMvc;
 
   /**

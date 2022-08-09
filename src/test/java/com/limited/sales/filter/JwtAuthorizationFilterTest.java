@@ -3,7 +3,7 @@ package com.limited.sales.filter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.google.gson.Gson;
-import com.limited.sales.config.LazyHolderObject;
+import com.limited.sales.config.LazyObjectHolder;
 import com.limited.sales.exception.sub.TokenException;
 import com.limited.sales.user.vo.User;
 import com.limited.sales.utils.JwtProperties;
@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource("classpath:application.properties")
 class JwtAuthorizationFilterTest {
 
-  private final Gson gson = LazyHolderObject.getGson();
+  private final Gson gson = LazyObjectHolder.getGson();
   @Autowired private MockMvc mockMvc;
 
   /**

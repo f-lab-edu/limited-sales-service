@@ -7,8 +7,10 @@ Rest API 형 서버로서 프론트는 프로토타입으로 제작해 시각적
 
 _프로젝트 전체적인 구조_
 ---
-- 이미지1
-- 이미지2
+<img width="629" alt="image" src="https://user-images.githubusercontent.com/63729676/184303429-e0835a89-7878-4fd6-a5d3-0ea70fcc3095.png">
+<img width="557" alt="image" src="https://user-images.githubusercontent.com/63729676/184303508-14f423a8-b20c-4e91-9db5-d9b590ff4870.png">
+
+
 
 
 _브렌치 전략_

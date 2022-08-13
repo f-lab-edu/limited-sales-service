@@ -3,19 +3,17 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.limited.sales.user.UserMapper">
-
     <select id="checkEmailDuplication" resultType="boolean">
         SELECT COUNT(*)
         FROM user
         WHERE email = #{email}
     </select>
 
-    <select id="checkPassword" resultType="boolean">
-        SELECT COUNT(*)
-        FROM user
+    <update id="updatePassword">
+        UPDATE user
+        SET password = #{password}
         WHERE email = #{email}
-          AND password = #{password}
-    </select>
+    </update>
 
     <select id="hasUser" resultType="boolean">
         SELECT COUNT(*)
@@ -35,12 +33,6 @@
         WHERE email = #{email}
     </select>
 
-    <select id="existOfUserEmail" resultType="boolean">
-        SELECT count(*)
-        FROM user
-        WHERE email = #{email}
-    </select>
-
     <update id="deleteUser">
         UPDATE user
         SET status = 'N'
@@ -48,15 +40,9 @@
           AND password = #{password}
     </update>
 
-    <update id="changePassword">
+    <update id="updateUserInformation">
         UPDATE user
-        SET password = #{password}
-        WHERE email = #{email}
-    </update>
-
-    <update id="changeUserInformation">
-        UPDATE user
-        SET cellphone = #{targetUserCellphone}
+        SET cellphone = #{cellphone}
         WHERE email = #{email}
     </update>
 
@@ -69,7 +55,7 @@
                , #{cellphone})
     </insert>
 
-    <update id="changeUserRoleToAdmin">
+    <update id="updateUserRoleToAdmin">
         UPDATE user
         SET role = 'ROLE_ADMIN'
         WHERE email = #{email}

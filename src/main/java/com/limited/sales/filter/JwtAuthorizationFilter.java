@@ -9,6 +9,7 @@ import com.limited.sales.utils.JwtProperties;
 import com.limited.sales.utils.JwtUtils;
 import com.limited.sales.utils.JwtValidationUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -52,14 +53,15 @@ public final class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     final String token = JwtUtils.replaceTokenPrefix(header);
     final String userEmail = JwtUtils.getClaim(token, JwtProperties.USER_EMAIL).asString();
+    if (StringUtils.isBlank(userEmail)) {
+      throw new TokenException("토큰에 사용자 이메일이 존재하지 않습니다.");
+    }
 
     if (checkBlacklistToken(token, userEmail)) {
       throw new TokenException("로그아웃 된 엑세스 토큰 입니다. 재로그인이 필요합니다.");
     }
 
-    if (userEmail != null) {
-      setAuthenticationContext(userEmail);
-    }
+    setAuthenticationContext(userEmail);
     chain.doFilter(request, response);
   }
 

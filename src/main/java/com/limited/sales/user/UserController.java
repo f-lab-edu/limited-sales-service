@@ -3,21 +3,19 @@ package com.limited.sales.user;
 import com.limited.sales.annotation.CurrentUser;
 import com.limited.sales.config.Constant;
 import com.limited.sales.exception.sub.BadRequestException;
-import com.limited.sales.exception.sub.DuplicatedIdException;
 import com.limited.sales.user.vo.User;
 import com.limited.sales.utils.HttpResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -26,67 +24,66 @@ import java.util.Optional;
     produces = MediaType.APPLICATION_JSON_VALUE,
     consumes = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@Validated
 public class UserController {
   private final UserService userService;
 
-  @GetMapping("/email")
-  public ResponseEntity<String> checkEmailDuplication(@RequestBody final User parameterUser) {
-    final User user = Optional.ofNullable(parameterUser).orElse(new User());
+  @GetMapping("/email/duplicated")
+  public HttpResponse<Void> checkEmailDuplication(
+      @NotBlank(message = "이메일이 존재하지 않습니다.") final String email) {
 
-    if (!userService.checkEmailDuplication(user)) {
-      return ResponseEntity.noContent().build();
+    if (!userService.checkEmailDuplication(email)) {
+      return HttpResponse.toResponse(HttpStatus.ACCEPTED.value(), "가입 가능한 이메일 입니다.");
     } else {
-      throw new DuplicatedIdException("이미 가입된 이메일 입니다.");
+      return HttpResponse.toResponse(HttpStatus.OK.value(), "이미 가입된 이메일 입니다.");
     }
   }
 
   @PostMapping
-  public ResponseEntity<String> signUp(@RequestBody @Validated final User user) {
+  public HttpResponse<Void> signUp(@RequestBody @Valid final User user) {
     userService.signUp(user);
-    return ResponseEntity.noContent().build();
+    return HttpResponse.toResponse(HttpStatus.CREATED.value(), "계정이 정상적으로 생성되었습니다.");
   }
 
   @PatchMapping
   @Secured({Constant.ROLE_USER, Constant.ROLE_ADMIN})
-  public ResponseEntity<String> updateUserInfo(
-      @CurrentUser User user, @RequestBody final User targetUser) {
-    userService.changeUserInformation(user, targetUser);
-    HttpResponse.builder().code(200).build();
-    return ResponseEntity.noContent().build();
+  public HttpResponse<Void> updateUserInfo(
+      @CurrentUser User currentUser, @RequestBody User updateCellphoneUser) {
+    userService.updateUserInformation(currentUser, updateCellphoneUser.getCellphone());
+    return HttpResponse.toResponse(HttpStatus.OK.value(), "정보가 정상적으로 수정되었습니다.");
   }
 
   @PatchMapping("/password")
   @Secured({Constant.ROLE_USER, Constant.ROLE_ADMIN})
-  public ResponseEntity<String> changeUserPassword(
+  public HttpResponse<Void> changeUserPassword(
       @CurrentUser final User currentUser,
-      @RequestBody final Map<String, String> changeData,
-      @RequestHeader(Constant.CurrentPassword) @NotBlank(message = "현재 비밀번호를 입력하지 않았습니다.")
-          final String currentPassword,
-      Errors error) {
-    if (error.hasErrors()) {
-      throw new BadRequestException("비밀번호를 다시 입력해주세요.");
+      @RequestBody final User updatePasswordUser,
+      @NotBlank(message = "현재 비밀번호가 존재하지 않습니다.") final String currentPassword) {
+    if (!userService.checkPassword(currentUser, currentPassword)) {
+      throw new BadRequestException("현재 비밀번호가 일치하지 않습니다.");
     }
 
-    if (userService.checkPassword(currentUser, currentPassword)) {
-      userService.changePassword(currentUser, changeData);
-    } else {
-      throw new BadRequestException("패스워드가 일치하지 않습니다.");
+    if (StringUtils.equals(updatePasswordUser.getPassword(), currentPassword)) {
+      throw new BadRequestException("현재 비밀번호와 변경할 비밀번호가 동일합니다.");
     }
-    return ResponseEntity.noContent().build();
+
+    userService.updatePassword(currentUser, updatePasswordUser.getPassword());
+    return HttpResponse.toResponse(HttpStatus.OK.value(), "비밀번호가 정상적으로 수정되었습니다.");
   }
 
   @DeleteMapping
   @Secured({Constant.ROLE_USER, Constant.ROLE_ADMIN})
-  public ResponseEntity<String> deleteUser(@CurrentUser User user) {
-    userService.deleteUser(user);
-    return ResponseEntity.noContent().build();
+  public HttpResponse<Void> deleteUser(@CurrentUser User currentUser) {
+    userService.deleteUser(currentUser);
+    return HttpResponse.toResponse(HttpStatus.OK.value(), "회원탈퇴가 정상적으로 이뤄졌습니다.");
   }
 
+  // TODO :: 관리자가 사용자 강제 탈퇴 기능 구현 필요.
   @PatchMapping("/admin")
   @Secured({Constant.ROLE_USER, Constant.ROLE_ADMIN})
-  public ResponseEntity<String> changeUserRoleToAdmin(
-      @CurrentUser User user, @RequestHeader("AdminCode") final String adminCode) {
-    userService.changeUserRoleToAdmin(adminCode, user);
-    return ResponseEntity.noContent().build();
+  public HttpResponse<Void> changeUserRoleToAdmin(
+      @CurrentUser User currentUser, @NotBlank(message = "코드가 존재하지 않습니다.") final String adminCode) {
+    userService.updateUserRoleToAdmin(currentUser, adminCode);
+    return HttpResponse.toResponse(HttpStatus.OK.value(), "관리자 권한을 부여 받았습니다.");
   }
 }

@@ -11,43 +11,40 @@ public interface UserMapper {
    * 회원가입 insert
    *
    * @param user
-   * @return
    */
-  int insertUser(final User user);
+  void insertUser(final User user);
 
   /**
    * 이메일 중복 체크 select
    *
-   * @param user
-   * @return
+   * @param email 사용자 이메일
+   * @return 이메일 중복 = true
    */
-  boolean checkEmailDuplication(final User user);
+  boolean checkEmailDuplication(@Param("email") final String email);
 
   /**
    * 회원 탈퇴 update
    *
    * @param user
-   * @return
    */
-  int deleteUser(final User user);
+  void deleteUser(final User user);
 
   /**
    * 패스워드 변경 update
    *
-   * @param user
-   * @return
+   * @param updateUser 변경할 패스워드 설정
    */
-  int changePassword(final User user);
+  void updatePassword(final User updateUser);
 
   /**
    * 내 정보 변경 update
    *
-   * @param email
-   * @param targetUserCellphone
+   * @param email 현재 사용자 이메일
+   * @param cellphone 변경할 전화번호
    * @return
    */
-  int changeUserInformation(
-      @Param("email") final String email, @Param("targetUserCellphone") final String targetUserCellphone);
+  void updateUserInformation(
+      @Param("email") final String email, @Param("cellphone") final String cellphone);
 
   /**
    * 아이디/패스워드 사용자 체크 select
@@ -67,26 +64,9 @@ public interface UserMapper {
   User findByEmail(final String email);
 
   /**
-   * 사용자 이메일 존재 여부
-   *
-   * @param email
-   * @return boolean
-   */
-  boolean existOfUserEmail(final String email);
-
-  /**
    * 관리자로 권한 변경
    *
    * @param email
-   * @return
    */
-  int changeUserRoleToAdmin(final String email);
-
-  /**
-   * 사용자 패스워드 체크
-   *
-   * @param userPassword
-   * @return
-   */
-  boolean checkPassword(final String email, @Param("password") final String userPassword);
+  void updateUserRoleToAdmin(final String email);
 }

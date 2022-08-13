@@ -3,25 +3,24 @@ package com.limited.sales.user;
 import com.limited.sales.user.vo.User;
 
 import javax.validation.constraints.NotNull;
-import java.util.Map;
 
 public interface UserService {
 
   void signUp(final User user);
 
-  boolean checkEmailDuplication(final User user);
+  boolean checkEmailDuplication(final String email);
 
-  int deleteUser(final User user);
+  void deleteUser(final User user);
 
-  int changePassword(final User currentUser, final Map<String, String> changeData);
+  void updatePassword(final User currentUser, final String updatePassword);
 
-  int changeUserInformation(final User user, final User targetUser);
+  boolean checkPassword(final @NotNull User currentUser, final @NotNull String currentPassword);
+
+  void updateUserInformation(final User user, final String cellphone);
 
   boolean hasUser(final User user);
 
   User findByEmail(final @NotNull String userEmail);
 
-  void changeUserRoleToAdmin(final @NotNull String adminCode, final @NotNull User user);
-
-  boolean checkPassword(final @NotNull User currentUser, final @NotNull String currentPassword);
+  void updateUserRoleToAdmin(@NotNull final User user, @NotNull final String adminCode);
 }

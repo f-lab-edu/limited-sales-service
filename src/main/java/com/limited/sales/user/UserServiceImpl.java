@@ -2,17 +2,17 @@ package com.limited.sales.user;
 
 import com.limited.sales.config.Constant;
 import com.limited.sales.exception.sub.BadRequestException;
-import com.limited.sales.exception.sub.DuplicatedIdException;
 import com.limited.sales.exception.sub.NoValidUserException;
 import com.limited.sales.user.vo.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -24,10 +24,6 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void signUp(final User user) {
-    if (hasUser(user)) {
-      throw new DuplicatedIdException("이미 존재하는 계정입니다.");
-    }
-
     final User newUser =
         User.builder()
             .cellphone(user.getCellphone())
@@ -36,90 +32,57 @@ public class UserServiceImpl implements UserService {
             .status(user.getStatus())
             .password(bCryptPasswordEncoder.encode(user.getPassword()))
             .build();
-
-    userMapper.insertUser(newUser);
+    try {
+      userMapper.insertUser(newUser);
+    } catch (DuplicateKeyException e) {
+      log.error(e.toString());
+      e.printStackTrace();
+      throw new DuplicateKeyException("이미 존재하는 계정입니다.");
+    }
   }
 
   @Override
-  @Transactional(readOnly = true)
   public boolean checkPassword(final User currentUser, final String currentPassword) {
-    Optional.ofNullable(currentPassword)
-        .filter(v -> v.length() != 0)
-        .orElseThrow(
-            () -> {
-              throw new BadRequestException("현재 패스워드를 입력하지 않았습니다.");
-            });
-
     return bCryptPasswordEncoder.matches(currentPassword, currentUser.getPassword());
   }
 
   @Override
-  @Transactional(readOnly = true)
-  public boolean checkEmailDuplication(final User user) {
-    Optional.ofNullable(user)
-        .map(User::getEmail)
-        .filter(v -> v.length() != 0)
-        .orElseThrow(
-            () -> {
-              throw new BadRequestException("이메일이 존재 하지 않습니다.");
-            });
-
-    return userMapper.checkEmailDuplication(user);
-  }
-
-  @Override
-  public int deleteUser(final User user) {
-    Optional.ofNullable(user)
-        .map(this::hasUser)
-        .orElseThrow(
-            () -> {
-              throw new NoValidUserException("계정이 존재하지 않습니다.");
-            });
-
-    return userMapper.deleteUser(user);
-  }
-
-  @Override
-  public int changePassword(final User currentUser, final Map<String, String> changeData) {
-    final Optional<String> maybeData = Optional.ofNullable(changeData.get("newPassword"));
-    maybeData
-        .filter(v -> v.length() != 0)
-        .orElseThrow(
-            () -> {
-              throw new BadRequestException("변경할 패스워드가 없거나 잘못 입력했습니다.");
-            });
-
-    final User changeUser =
-        User.builder()
-            .email(currentUser.getEmail())
-            .password(changeData.get("newPassword"))
-            .build();
-
-    if (!userMapper.existOfUserEmail(changeUser.getEmail())) {
-      throw new NoValidUserException("계정이 존재하지 않습니다.");
+  public void updatePassword(final User currentUser, final String updatePassword) {
+    if (StringUtils.isBlank(updatePassword)) {
+      throw new BadRequestException("변경할 비밀번호가 존재하지 않습니다.");
     }
-    return userMapper.changePassword(changeUser);
+
+    final User updateUser =
+        User.builder().email(currentUser.getEmail()).password(updatePassword).build();
+
+    userMapper.updatePassword(updateUser);
   }
 
   @Override
-  public int changeUserInformation(final User user, final User targetUser) {
-    Optional.ofNullable(user)
-        .map(User::getEmail)
-        .filter(v -> v.length() != 0)
-        .orElseThrow(
-            () -> {
-              throw new BadRequestException("이메일이 존재하지 않습니다.");
-            });
+  @Transactional(readOnly = true)
+  public boolean checkEmailDuplication(final String email) {
+    if (StringUtils.isBlank(email)) {
+      throw new BadRequestException("이메일이 존재 하지 않습니다.");
+    }
+    return userMapper.checkEmailDuplication(email);
+  }
 
-    Optional.ofNullable(targetUser)
-        .map(User::getCellphone)
-        .filter(v -> v.length() != 0)
-        .orElseThrow(
-            () -> {
-              throw new BadRequestException("전화번호가 존재하지 않습니다.");
-            });
+  @Override
+  public void deleteUser(final User user) {
+    try {
+      userMapper.deleteUser(user);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
-    return userMapper.changeUserInformation(user.getEmail(), targetUser.getCellphone());
+  @Override
+  public void updateUserInformation(final User user, final String cellphone) {
+    if (StringUtils.isBlank(cellphone)) {
+      throw new BadRequestException("변경할 휴대폰 번호가 존재하지 않습니다.");
+    }
+
+    userMapper.updateUserInformation(user.getEmail(), cellphone);
   }
 
   @Transactional(readOnly = true)
@@ -131,34 +94,23 @@ public class UserServiceImpl implements UserService {
   @Transactional(readOnly = true)
   @Override
   public User findByEmail(final String userEmail) {
-    final User foundByEmail = userMapper.findByEmail(userEmail);
+    if (StringUtils.isBlank(userEmail)) {
+      throw new BadRequestException("이메일이 존재하지 않습니다.");
+    }
 
-    Optional.ofNullable(foundByEmail)
+    return Optional.ofNullable(userMapper.findByEmail(userEmail))
         .orElseThrow(
             () -> {
               throw new NoValidUserException("계정이 존재하지 않습니다.");
             });
-
-    return foundByEmail;
   }
 
   @Override
-  public void changeUserRoleToAdmin(@NotNull final String adminCode, @NotNull final User user) {
-    final User byUser = userMapper.findByEmail(user.getEmail());
-    Optional.ofNullable(adminCode)
-        .filter(v -> v.length() != 0)
-        .filter(Constant.ADMIN_CODE::equals)
-        .orElseThrow(
-            () -> {
-              throw new BadRequestException("관리자 코드가 없거나 잘못 입력했습니다.");
-            });
+  public void updateUserRoleToAdmin(@NotNull final User user, @NotNull final String adminCode) {
+    if (!Constant.ADMIN_CODE.equals(adminCode)) {
+      throw new BadRequestException("관리자 코드가 일치하지 않습니다.");
+    }
 
-    Optional.ofNullable(byUser)
-        .orElseThrow(
-            () -> {
-              throw new NoValidUserException("계정이 존재하지 않습니다.");
-            });
-
-    userMapper.changeUserRoleToAdmin(byUser.getEmail());
+    userMapper.updateUserRoleToAdmin(user.getEmail());
   }
 }

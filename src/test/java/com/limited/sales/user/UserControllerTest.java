@@ -47,7 +47,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            get("/user/email").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+            get("/users/email").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is2xxSuccessful())
         .andDo(print());
   }
@@ -59,7 +59,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            get("/user/email").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+            get("/users/email").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
         .andDo(print());
   }
@@ -71,7 +71,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            get("/user/email").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+            get("/users/email").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
         .andDo(print());
   }
@@ -83,7 +83,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            get("/user/email").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+            get("/users/email").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
         .andDo(print());
   }
@@ -92,7 +92,7 @@ class UserControllerTest {
   @DisplayName("UserController.이메일 중복체크 - body empty")
   void checkEmailDuplicationBodyEmpty() throws Exception {
     mockMvc
-        .perform(get("/user/email").content("").contentType(MediaType.APPLICATION_JSON))
+        .perform(get("/users/email").content("").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
         .andDo(print());
   }
@@ -110,7 +110,7 @@ class UserControllerTest {
         User.builder().email("ohjeung@gamil.com").password("1234").cellphone("01011112222").build();
 
     mockMvc
-        .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .perform(post("/users").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is2xxSuccessful())
         .andDo(print());
   }
@@ -122,7 +122,7 @@ class UserControllerTest {
     User user = User.builder().password("1234").cellphone("01011112222").build();
 
     mockMvc
-        .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .perform(post("/users").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
         .andDo(print());
   }
@@ -134,7 +134,7 @@ class UserControllerTest {
     User user = User.builder().email("ohjeung@gamil.com").cellphone("01011112222").build();
 
     mockMvc
-        .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .perform(post("/users").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
         .andDo(print());
   }
@@ -145,7 +145,7 @@ class UserControllerTest {
   void signUpEmptyEmail() throws Exception {
     User user = User.builder().email("").password("1234").cellphone("01011112222").build();
     mockMvc
-        .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .perform(post("/users").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
         .andDo(print());
   }
@@ -157,7 +157,7 @@ class UserControllerTest {
     User user =
         User.builder().email("ohjeung@gamil.com").password("").cellphone("01011112222").build();
     mockMvc
-        .perform(post("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .perform(post("/users").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
         .andDo(print());
   }
@@ -177,7 +177,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            patch("/user")
+            patch("/users")
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .content(gson.toJson(user))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -192,7 +192,7 @@ class UserControllerTest {
     User user = User.builder().email("test@test").password("1234").cellphone("01022223333").build();
 
     mockMvc
-        .perform(patch("/user").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
+        .perform(patch("/users").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
         .andDo(print());
   }
@@ -207,7 +207,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            patch("/user")
+            patch("/users")
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .content(gson.toJson(user))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -225,7 +225,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            patch("/user")
+            patch("/users")
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .content(gson.toJson(user))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -243,7 +243,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            patch("/user")
+            patch("/users")
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .content(gson.toJson(user))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -269,7 +269,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            patch("/user/password")
+            patch("/users/password")
                 .header("current_password", currentPassword)
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .content(gson.toJson(userData))
@@ -291,7 +291,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            patch("/user/password")
+            patch("/users/password")
                 .header("current_password", currentPassword)
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .content(gson.toJson(userData))
@@ -313,7 +313,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            patch("/user/password")
+            patch("/users/password")
                 .header("current_password", currentPassword)
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .content(gson.toJson(userData))
@@ -335,7 +335,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            patch("/user/password")
+            patch("/users/password")
                 .header("current_password", currentPassword)
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .content(gson.toJson(userData))
@@ -357,7 +357,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            patch("/user/password")
+            patch("/users/password")
                 .header("current_password", currentPassword)
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .content(gson.toJson(userData))
@@ -379,7 +379,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            patch("/user/password")
+            patch("/users/password")
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .content(gson.toJson(userData))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -401,7 +401,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            delete("/user")
+            delete("/users")
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is2xxSuccessful())
@@ -422,7 +422,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            patch("/user/admin")
+            patch("/users/admin")
                 .header("AdminCode", Constant.ADMIN_CODE)
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -439,7 +439,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            patch("/user/admin")
+            patch("/users/admin")
                 .header("AdminCode", "")
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .contentType(MediaType.APPLICATION_JSON))

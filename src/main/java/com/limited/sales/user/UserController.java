@@ -22,7 +22,7 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequestMapping(
-    value = "/user",
+    value = "/users",
     produces = MediaType.APPLICATION_JSON_VALUE,
     consumes = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor

@@ -27,7 +27,7 @@ class ProducerTest {
 
   @Autowired MockMvc mockMvc;
   @Autowired
-  Producer consumer;
+  Producer producer;
   @Autowired private WebApplicationContext context;
 
   @BeforeEach
@@ -36,7 +36,7 @@ class ProducerTest {
   }
 
   @Test
-  @DisplayName("mq consumer test")
+  @DisplayName("mq producer test")
   void send() {
     Product product =
         new Product(
@@ -51,7 +51,7 @@ class ProducerTest {
             LocalDateTime.of(2022, 07, 22, 10, 00, 0),
             LocalDateTime.of(2022, 07, 22, 12, 00, 0));
 
-    consumer.send(product);
+    producer.send(product);
   }
 }
 

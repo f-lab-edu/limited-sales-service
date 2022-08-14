@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
   @Transactional(readOnly = true)
   public boolean checkEmailDuplication(final String email) {
     if (StringUtils.isBlank(email)) {
-      throw new BadRequestException("이메일이 존재 하지 않습니다.");
+      throw new BadRequestException("이메일이 존재하지 않습니다.");
     }
     return userMapper.checkEmailDuplication(email);
   }

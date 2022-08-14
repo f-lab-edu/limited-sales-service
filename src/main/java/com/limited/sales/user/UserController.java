@@ -15,7 +15,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -30,7 +33,7 @@ public class UserController {
 
   @GetMapping("/email/duplicated")
   public HttpResponse<Void> checkEmailDuplication(
-      @NotBlank(message = "이메일이 존재하지 않습니다.") final String email) {
+      @NotNull(message = "이메일이 존재하지 않습니다.") @Email(message = "이메일 형식이 아닙니다.") final String email) {
 
     if (!userService.checkEmailDuplication(email)) {
       return HttpResponse.toResponse(HttpStatus.ACCEPTED.value(), "가입 가능한 이메일 입니다.");
@@ -48,26 +51,38 @@ public class UserController {
   @PatchMapping
   @Secured({Constant.ROLE_USER, Constant.ROLE_ADMIN})
   public HttpResponse<Void> updateUserInfo(
-      @CurrentUser User currentUser, @RequestBody User updateCellphoneUser) {
-    userService.updateUserInformation(currentUser, updateCellphoneUser.getCellphone());
+      @CurrentUser User currentUser,
+      @RequestBody(required = false) @NotBlank(message = "전화번호가 존재하지 않습니다.")
+          final String cellphone) {
+    if (!StringUtils.isNumeric(cellphone)) {
+      throw new BadRequestException("숫자만 입력 가능합니다.");
+    }
+    userService.updateUserInformation(currentUser, cellphone);
     return HttpResponse.toResponse(HttpStatus.OK.value(), "정보가 정상적으로 수정되었습니다.");
   }
 
   @PatchMapping("/password")
   @Secured({Constant.ROLE_USER, Constant.ROLE_ADMIN})
-  public HttpResponse<Void> changeUserPassword(
+  public HttpResponse<Void> updateUserPassword(
       @CurrentUser final User currentUser,
-      @RequestBody final User updatePasswordUser,
-      @NotBlank(message = "현재 비밀번호가 존재하지 않습니다.") final String currentPassword) {
+      @RequestBody(required = false) @NotNull(message = "비밀번호가 존재하지 않습니다.")
+          final Map<String, String> passwordData) {
+    final String currentPassword = passwordData.get("currentPassword");
+    final String newPassword = passwordData.get("newPassword");
+
+    if (StringUtils.isBlank(currentPassword)) {
+      throw new BadRequestException("현재 비밀번호가 존재하지 않습니다.");
+    }
+
     if (!userService.checkPassword(currentUser, currentPassword)) {
       throw new BadRequestException("현재 비밀번호가 일치하지 않습니다.");
     }
 
-    if (StringUtils.equals(updatePasswordUser.getPassword(), currentPassword)) {
+    if (StringUtils.equals(newPassword, currentPassword)) {
       throw new BadRequestException("현재 비밀번호와 변경할 비밀번호가 동일합니다.");
     }
 
-    userService.updatePassword(currentUser, updatePasswordUser.getPassword());
+    userService.updatePassword(currentUser, newPassword);
     return HttpResponse.toResponse(HttpStatus.OK.value(), "비밀번호가 정상적으로 수정되었습니다.");
   }
 
@@ -81,8 +96,9 @@ public class UserController {
   // TODO :: 관리자가 사용자 강제 탈퇴 기능 구현 필요.
   @PatchMapping("/admin")
   @Secured({Constant.ROLE_USER, Constant.ROLE_ADMIN})
-  public HttpResponse<Void> changeUserRoleToAdmin(
-      @CurrentUser User currentUser, @NotBlank(message = "코드가 존재하지 않습니다.") final String adminCode) {
+  public HttpResponse<Void> updateUserRoleToAdmin(
+      @CurrentUser User currentUser,
+      @RequestBody(required = false) @NotBlank(message = "코드가 존재하지 않습니다.") final String adminCode) {
     userService.updateUserRoleToAdmin(currentUser, adminCode);
     return HttpResponse.toResponse(HttpStatus.OK.value(), "관리자 권한을 부여 받았습니다.");
   }

@@ -252,8 +252,6 @@ class UserControllerTest {
   void updateUserInfo() throws Exception {
     User user = User.builder().email("test@test").password("1234").cellphone("01011112222").build();
     String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
-    Map<String, String> data = new HashMap<>();
-    data.put("cellphone", "01011113333");
 
     mockMvc
         .perform(
@@ -361,38 +359,6 @@ class UserControllerTest {
         .andExpect(status().is4xxClientError())
         .andExpect(jsonPath("$.code").value(400))
         .andExpect(jsonPath("$.message").value("현재 비밀번호가 일치하지 않습니다."))
-        .andDo(print());
-  }
-
-  @Test
-  @Rollback
-  @DisplayName("UserController.비밀번호 변경 - 현재 비밀번호 empty")
-  void changeUserCurrentPasswordEmpty() throws Exception {
-    User user = User.builder().email("test@test").password("1234").build();
-    String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
-
-    JsonObject obj = new JsonObject();
-    obj.addProperty("currentPassword", "");
-    obj.addProperty("newPassword", "4444");
-
-  @Test
-  @Rollback
-  @DisplayName("UserController.비밀번호 변경 - 현재 비밀번호 null")
-  void changeUserCurrentPasswordNull() throws Exception {
-    User user = User.builder().email("test@test").password("1234").build();
-    String prefixToken = JwtProperties.TOKEN_PREFIX + JwtUtils.createAccessToken(user);
-
-    User updatePasswordUser = User.builder().password("4444").build();
-    mockMvc
-        .perform(
-            patch("/users/password")
-                .header(JwtProperties.HEADER_STRING, prefixToken)
-                .content(obj.toString())
-                .param("currentPassword", "")
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
-        .andExpect(jsonPath("$.message").value("현재 비밀번호가 존재하지 않습니다."))
         .andDo(print());
   }
 

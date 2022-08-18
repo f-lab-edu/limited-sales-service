@@ -7,6 +7,7 @@ import com.limited.sales.exception.sub.BadRequestException;
 import com.limited.sales.exception.sub.NoValidUserException;
 import com.limited.sales.exception.sub.NotAllowedClaimException;
 import com.limited.sales.user.vo.User;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -49,7 +50,7 @@ public final class JwtUtils {
   }
 
   public static String replaceTokenPrefix(final @NotNull String header) {
-    if (header == null || header.equals("")) {
+    if (StringUtils.isBlank(header)) {
       throw new BadRequestException("토큰이 비었거나 존재하지 않습니다.");
     }
 
@@ -63,11 +64,11 @@ public final class JwtUtils {
   }
 
   private static void claimParameterEmptyNullValidation(String token, String claim) {
-    if ("".equals(claim) || claim == null) {
+    if (StringUtils.isBlank(claim)) {
       throw new BadRequestException("Claim 값이 존재하지 않습니다.");
     }
 
-    if ("".equals(token) || token == null) {
+    if (StringUtils.isBlank(token)) {
       throw new BadRequestException("token 값이 존재하지 않습니다.");
     }
   }
@@ -79,7 +80,7 @@ public final class JwtUtils {
               throw new NoValidUserException("사용자 정보가 없습니다.");
             });
 
-    if (user.getEmail() == null || "".equals(user.getEmail())) {
+    if (StringUtils.isBlank(user.getEmail())) {
       throw new BadRequestException("사용자 이메일 값이 존재하지 않습니다.");
     }
   }

@@ -2,7 +2,6 @@ package com.limited.sales.product;
 
 import com.limited.sales.product.vo.Product;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface ProductMapper {

@@ -47,7 +47,6 @@ class JwtLogoutHandlerFilterTest {
             .perform(
                 post("/login").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().is2xxSuccessful())
-            .andDo(print())
             .andReturn()
             .getResponse()
             .getHeader(JwtProperties.HEADER_STRING);
@@ -110,8 +109,6 @@ class JwtLogoutHandlerFilterTest {
                   .andDo(print());
             });
   }
-
-
 
   @Test
   @DisplayName("JWT 로그아웃 - header none")

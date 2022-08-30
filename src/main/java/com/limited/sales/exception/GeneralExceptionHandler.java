@@ -1,13 +1,13 @@
 package com.limited.sales.exception;
 
 import com.limited.sales.exception.sub.*;
-import lombok.Builder;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -28,34 +28,38 @@ import java.util.stream.Collectors;
 public final class GeneralExceptionHandler {
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   @ExceptionHandler({RuntimeException.class, LoginException.class})
-  public ExceptionVo runTime(final RuntimeException e) {
+  public ExceptionVo<Void> runTime(final RuntimeException e) {
     log.error(e.toString());
     e.printStackTrace();
-    return ExceptionVo.builder()
+    return ExceptionVo.<Void>builder()
         .message(e.getLocalizedMessage())
-        .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .build();
   }
 
   @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
   @ExceptionHandler({HttpMediaTypeException.class})
-  public ExceptionVo notSupported(final HttpMediaTypeException e) {
+  public ExceptionVo<Void> notSupported(final HttpMediaTypeException e) {
     log.error(e.toString());
     e.printStackTrace();
-    return ExceptionVo.builder()
+    return ExceptionVo.<Void>builder()
         .message(e.getLocalizedMessage())
-        .code(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
+        .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
         .build();
   }
 
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
-  @ExceptionHandler({AccessDeniedException.class, LoginFailException.class})
-  public ExceptionVo unauthorized(final RuntimeException e) {
+  @ExceptionHandler({
+    AccessDeniedException.class,
+    LoginFailException.class,
+    InternalAuthenticationServiceException.class,
+  })
+  public ExceptionVo<Void> unauthorized(final RuntimeException e) {
     log.error(e.toString());
     e.printStackTrace();
-    return ExceptionVo.builder()
+    return ExceptionVo.<Void>builder()
         .message(e.getLocalizedMessage())
-        .code(HttpStatus.UNAUTHORIZED.value())
+        .status(HttpStatus.UNAUTHORIZED)
         .build();
   }
 
@@ -67,79 +71,56 @@ public final class GeneralExceptionHandler {
     BadRequestException.class,
     NoValidUserException.class,
     DuplicateKeyException.class,
+    MethodArgumentTypeMismatchException.class,
+    HttpMessageNotReadableException.class,
+    RedisBadArgumentException.class,
+    IllegalArgumentException.class,
   })
-  public ExceptionVo badRequest(final RuntimeException e) {
+  public ExceptionVo<Void> badRequest(final RuntimeException e) {
     log.error(e.toString());
     e.printStackTrace();
-    return ExceptionVo.builder()
+    return ExceptionVo.<Void>builder()
         .message(e.getLocalizedMessage())
-        .code(HttpStatus.BAD_REQUEST.value())
+        .status(HttpStatus.BAD_REQUEST)
         .build();
   }
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ExceptionVo processValidationError(final MethodArgumentNotValidException e) {
+  public ExceptionVo<Void> processValidationError(final MethodArgumentNotValidException e) {
     log.error(e.toString());
     e.printStackTrace();
-    return ExceptionVo.builder()
+    return ExceptionVo.<Void>builder()
         .message(
             e.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining()))
-        .code(HttpStatus.BAD_REQUEST.value())
+        .status(HttpStatus.BAD_REQUEST)
         .build();
   }
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler({ConstraintViolationException.class})
-  public ExceptionVo constraintViolation(final ConstraintViolationException e) {
+  public ExceptionVo<Void> constraintViolation(final ConstraintViolationException e) {
     log.error(e.toString());
     e.printStackTrace();
-    return ExceptionVo.builder()
+    return ExceptionVo.<Void>builder()
         .message(
             e.getConstraintViolations().stream()
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining()))
-        .code(HttpStatus.BAD_REQUEST.value())
-        .build();
-  }
-
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
-  @ExceptionHandler({MethodArgumentTypeMismatchException.class})
-  public ExceptionVo methodArgumentTypeMismatch(final MethodArgumentTypeMismatchException e) {
-    log.error(e.toString());
-    e.printStackTrace();
-    return ExceptionVo.builder()
-        .message(e.getLocalizedMessage())
-        .code(HttpStatus.BAD_REQUEST.value())
+        .status(HttpStatus.BAD_REQUEST)
         .build();
   }
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler({MissingRequestHeaderException.class})
-  public ExceptionVo missingRequestHeader(final MissingRequestHeaderException e) {
+  public ExceptionVo<Void> missingRequestHeader(final MissingRequestHeaderException e) {
     log.error(e.toString());
     e.printStackTrace();
-    return ExceptionVo.builder()
+    return ExceptionVo.<Void>builder()
         .message("누락된 헤더가 존재합니다. 다시 시도해주세요.")
-        .code(HttpStatus.BAD_REQUEST.value())
+        .status(HttpStatus.BAD_REQUEST)
         .build();
-  }
-
-  /** ExceptionVo JSON API 형태를 구성하기 위한 Vo */
-  @Getter
-  private static class ExceptionVo<T> {
-
-    private final int code;
-    private final String message;
-    private final T data;
-
-    @Builder
-    public ExceptionVo(int code, String message, T data) {
-      this.code = code;
-      this.message = message;
-      this.data = data;
-    }
   }
 }

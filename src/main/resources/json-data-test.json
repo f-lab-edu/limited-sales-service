@@ -1,0 +1,9 @@
+{
+  "name": "test",
+  "price": 10000,
+  "quantity": 200,
+  "details": "상품테스트",
+  "fileGroupId": 2,
+  "salesTime": "2022-08-24 20:00:00",
+  "endTime": "2022-08-24 20:00:00"
+}

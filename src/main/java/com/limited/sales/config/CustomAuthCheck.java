@@ -5,6 +5,8 @@ import com.limited.sales.filter.JwtAuthorizationFilter;
 import com.limited.sales.redis.RedisService;
 import com.limited.sales.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.core.Message;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -15,13 +17,14 @@ import org.springframework.stereotype.Component;
 public class CustomAuthCheck extends AbstractHttpConfigurer<CustomAuthCheck, HttpSecurity> {
   private final UserService userService;
   private final RedisService redisService;
+  private final MessageSourceAccessor message;
 
   @Override
   public void configure(HttpSecurity builder) {
     final AuthenticationManager authenticationManager =
         builder.getSharedObject(AuthenticationManager.class);
     builder
-        .addFilter(new JwtAuthenticationFilter(authenticationManager, redisService))
+        .addFilter(new JwtAuthenticationFilter(authenticationManager, redisService, message))
         .addFilter(new JwtAuthorizationFilter(authenticationManager, userService, redisService));
   }
 }

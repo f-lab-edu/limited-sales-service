@@ -29,8 +29,8 @@ class HttpResponseTest {
   @Test
   @DisplayName("HttpResponse3Ref - 코드, 메세지, null 정상적으로 표출")
   void toResponse_data_null_success() {
-    HttpResponse<Void> httpResponse = HttpResponse.toResponse(HttpStatus.OK.value(), "성공", null);
-    assertThat(httpResponse.getCode()).isNotNull().isEqualTo(200);
+    HttpResponse<Void> httpResponse = HttpResponse.toResponse(HttpStatus.OK, "성공", null);
+    assertThat(httpResponse.getStatus()).isNotNull().isEqualTo(200);
     assertThat(httpResponse.getMessage()).isNotNull().isEqualTo("성공");
     assertThat(httpResponse.getData()).isNull();
   }
@@ -40,8 +40,8 @@ class HttpResponseTest {
   void toResponse_data_success() {
     User byUser = userService.findByEmail("test@test");
 
-    HttpResponse<User> httpResponse = HttpResponse.toResponse(HttpStatus.OK.value(), "성공", byUser);
-    assertThat(httpResponse.getCode()).isNotNull().isEqualTo(200);
+    HttpResponse<User> httpResponse = HttpResponse.toResponse(HttpStatus.OK, "성공", byUser);
+    assertThat(httpResponse.getStatus()).isNotNull().isEqualTo(200);
     assertThat(httpResponse.getMessage()).isNotNull().isEqualTo("성공");
     assertThat(httpResponse.getData().getEmail()).isNotNull().isEqualTo("test@test");
   }
@@ -51,8 +51,8 @@ class HttpResponseTest {
   void toResponse_no_data() {
     User byUser = userService.findByEmail("test@test");
 
-    HttpResponse<User> httpResponse = HttpResponse.toResponse(200, "성공", null);
-    assertThat(httpResponse.getCode()).isNotNull().isEqualTo(200);
+    HttpResponse<User> httpResponse = HttpResponse.toResponse(HttpStatus.OK, "성공", null);
+    assertThat(httpResponse.getStatus()).isNotNull().isEqualTo(HttpStatus.OK);
     assertThat(httpResponse.getMessage()).isNotNull().isEqualTo("성공");
     assertThat(httpResponse.getData()).isNull();
   }
@@ -62,8 +62,8 @@ class HttpResponseTest {
   void toResponse_no_message() {
     User byUser = userService.findByEmail("test@test");
 
-    HttpResponse<User> httpResponse = HttpResponse.toResponse(200, null, byUser);
-    assertThat(httpResponse.getCode()).isNotNull().isEqualTo(200);
+    HttpResponse<User> httpResponse = HttpResponse.toResponse(HttpStatus.OK, null, byUser);
+    assertThat(httpResponse.getStatus()).isNotNull().isEqualTo(HttpStatus.OK);
     assertThat(httpResponse.getMessage()).isNull();
     assertThat(httpResponse.getData()).isNotNull().isEqualTo(byUser);
   }
@@ -73,8 +73,8 @@ class HttpResponseTest {
   void toResponse_no_code() {
     User byUser = userService.findByEmail("test@test");
 
-    HttpResponse<User> httpResponse = HttpResponse.toResponse(0, "성공", byUser);
-    assertThat(httpResponse.getCode()).isNotNull().isEqualTo(0);
+    HttpResponse<User> httpResponse = HttpResponse.toResponse(HttpStatus.BAD_REQUEST, "성공", byUser);
+    assertThat(httpResponse.getStatus()).isNotNull().isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(httpResponse.getMessage()).isNotNull().isEqualTo("성공");
     assertThat(httpResponse.getData()).isNotNull().isEqualTo(byUser);
   }
@@ -84,8 +84,8 @@ class HttpResponseTest {
   void toResponse_data_no_response() {
     User byUser = userService.findByEmail("test@test");
 
-    HttpResponse<Void> httpResponse = HttpResponse.toResponse(200, "성공");
-    assertThat(httpResponse.getCode()).isNotNull().isEqualTo(200);
+    HttpResponse<Void> httpResponse = HttpResponse.toResponse(HttpStatus.OK, "성공");
+    assertThat(httpResponse.getStatus()).isNotNull().isEqualTo(HttpStatus.OK);
     assertThat(httpResponse.getMessage()).isNotNull().isEqualTo("성공");
     assertThat(httpResponse.getData()).isNull();
   }

@@ -1,10 +1,10 @@
 package com.limited.sales.redis;
 
-public interface RedisService {
-
-  void setValue(String key, String data);
-
-  String getValue(String key);
+public interface RedisService<V> {
 
   void deleteValue(String key);
+
+  void setValue(String key, V data);
+
+  V getValue(String key);
 }

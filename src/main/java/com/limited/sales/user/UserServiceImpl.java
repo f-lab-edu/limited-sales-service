@@ -1,22 +1,22 @@
 package com.limited.sales.user;
 
-import com.limited.sales.config.Constant;
-import com.limited.sales.exception.sub.BadRequestException;
 import com.limited.sales.exception.sub.NoValidUserException;
 import com.limited.sales.user.vo.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
-@Service
 @Slf4j
+@Service
+@Validated
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
   private final UserMapper userMapper;
@@ -42,18 +42,15 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public boolean checkPassword(final User currentUser, final String currentPassword) {
-    return bCryptPasswordEncoder.matches(currentPassword, currentUser.getPassword());
+  public boolean checkPassword(final String currentPassword, final String encodedPassword) {
+    return bCryptPasswordEncoder.matches(currentPassword, encodedPassword);
   }
 
   @Override
-  public void updatePassword(final User currentUser, final String updatePassword) {
-    if (StringUtils.isBlank(updatePassword)) {
-      throw new BadRequestException("변경할 비밀번호가 존재하지 않습니다.");
-    }
+  public void updatePassword(final User currentUser, final String newPassword) {
 
     final User updateUser =
-        User.builder().email(currentUser.getEmail()).password(updatePassword).build();
+        User.builder().email(currentUser.getEmail()).password(newPassword).build();
 
     userMapper.updatePassword(updateUser);
   }
@@ -61,9 +58,6 @@ public class UserServiceImpl implements UserService {
   @Override
   @Transactional(readOnly = true)
   public boolean checkEmailDuplication(final String email) {
-    if (StringUtils.isBlank(email)) {
-      throw new BadRequestException("이메일이 존재하지 않습니다.");
-    }
     return userMapper.checkEmailDuplication(email);
   }
 
@@ -78,10 +72,6 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void updateUserInformation(final User user, final String cellphone) {
-    if (StringUtils.isBlank(cellphone)) {
-      throw new BadRequestException("변경할 휴대폰 번호가 존재하지 않습니다.");
-    }
-
     userMapper.updateUserInformation(user.getEmail(), cellphone);
   }
 
@@ -94,10 +84,6 @@ public class UserServiceImpl implements UserService {
   @Transactional(readOnly = true)
   @Override
   public User findByEmail(final String userEmail) {
-    if (StringUtils.isBlank(userEmail)) {
-      throw new BadRequestException("이메일이 존재하지 않습니다.");
-    }
-
     return Optional.ofNullable(userMapper.findByEmail(userEmail))
         .orElseThrow(
             () -> {
@@ -107,10 +93,6 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void updateUserRoleToAdmin(@NotNull final User user, @NotNull final String adminCode) {
-    if (!Constant.ADMIN_CODE.equals(adminCode)) {
-      throw new BadRequestException("관리자 코드가 일치하지 않습니다.");
-    }
-
     userMapper.updateUserRoleToAdmin(user.getEmail());
   }
 }

@@ -50,7 +50,7 @@ class UserControllerTest {
                 .param("email", "cometo@naver.com")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is2xxSuccessful())
-        .andExpect(jsonPath("$.code").value(202))
+        .andExpect(jsonPath("$.status").value("ACCEPTED"))
         .andExpect(jsonPath("$.message").value("가입 가능한 이메일 입니다."))
         .andDo(print());
   }
@@ -64,7 +64,7 @@ class UserControllerTest {
                 .param("email", "test@test")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is2xxSuccessful())
-        .andExpect(jsonPath("$.code").value(200))
+        .andExpect(jsonPath("$.status").value("OK"))
         .andExpect(jsonPath("$.message").value("이미 가입된 이메일 입니다."))
         .andDo(print());
   }
@@ -80,7 +80,7 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
         .andExpect(jsonPath("$.message").value("이메일이 존재하지 않습니다."))
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andDo(print());
   }
 
@@ -94,7 +94,7 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
         .andExpect(jsonPath("$.message").value("이메일 형식이 아닙니다."))
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andDo(print());
   }
 
@@ -105,7 +105,7 @@ class UserControllerTest {
         .perform(get("/users/email/duplicated").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
         .andExpect(jsonPath("$.message").value("이메일이 존재하지 않습니다."))
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andDo(print());
   }
 
@@ -119,7 +119,7 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
         .andExpect(jsonPath("$.message").value("이메일 형식이 아닙니다."))
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andDo(print());
   }
 
@@ -133,7 +133,7 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
         .andExpect(jsonPath("$.message").value("이메일 형식이 아닙니다."))
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andDo(print());
   }
 
@@ -147,7 +147,7 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
         .andExpect(jsonPath("$.message").value("이메일 형식이 아닙니다."))
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andDo(print());
   }
 
@@ -166,7 +166,7 @@ class UserControllerTest {
     mockMvc
         .perform(post("/users").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is2xxSuccessful())
-        .andExpect(jsonPath("$.code").value(201))
+        .andExpect(jsonPath("$.status").value("CREATED"))
         .andExpect(jsonPath("$.message").value("계정이 정상적으로 생성되었습니다."))
         .andDo(print());
   }
@@ -180,8 +180,8 @@ class UserControllerTest {
     mockMvc
         .perform(post("/users").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
-        .andExpect(jsonPath("$.message").value("이메일을 입력하지 않았습니다."))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+        .andExpect(jsonPath("$.message").value("이메일이 존재하지 않습니다."))
         .andDo(print());
   }
 
@@ -194,8 +194,8 @@ class UserControllerTest {
     mockMvc
         .perform(post("/users").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
-        .andExpect(jsonPath("$.message").value("비밀번호를 입력하지 않았습니다."))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+        .andExpect(jsonPath("$.message").value("비밀번호가 존재하지 않습니다."))
         .andDo(print());
   }
 
@@ -207,8 +207,8 @@ class UserControllerTest {
     mockMvc
         .perform(post("/users").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
-        .andExpect(jsonPath("$.message").value("이메일을 입력하지 않았습니다."))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+        .andExpect(jsonPath("$.message").value("이메일이 존재하지 않습니다."))
         .andDo(print());
   }
 
@@ -221,8 +221,8 @@ class UserControllerTest {
     mockMvc
         .perform(post("/users").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
-        .andExpect(jsonPath("$.message").value("비밀번호를 입력하지 않았습니다."))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+        .andExpect(jsonPath("$.message").value("비밀번호가 존재하지 않습니다."))
         .andDo(print());
   }
 
@@ -236,7 +236,7 @@ class UserControllerTest {
     mockMvc
         .perform(post("/users").content(gson.toJson(user)).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andExpect(jsonPath("$.message").value("이미 존재하는 계정입니다."))
         .andDo(print());
   }
@@ -334,7 +334,7 @@ class UserControllerTest {
                 .content(obj.toString())
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is2xxSuccessful())
-        .andExpect(jsonPath("$.code").value(200))
+        .andExpect(jsonPath("$.status").value("OK"))
         .andExpect(jsonPath("$.message").value("비밀번호가 정상적으로 수정되었습니다."))
         .andDo(print());
   }
@@ -357,7 +357,7 @@ class UserControllerTest {
                 .content(obj.toString())
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andExpect(jsonPath("$.message").value("현재 비밀번호가 일치하지 않습니다."))
         .andDo(print());
   }
@@ -379,7 +379,7 @@ class UserControllerTest {
                 .content(obj.toString())
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andExpect(jsonPath("$.message").value("현재 비밀번호가 존재하지 않습니다."))
         .andDo(print());
   }
@@ -402,7 +402,7 @@ class UserControllerTest {
                 .content(obj.toString())
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andExpect(jsonPath("$.message").value("변경할 비밀번호가 존재하지 않습니다."))
         .andDo(print());
   }
@@ -424,7 +424,7 @@ class UserControllerTest {
                 .content(obj.toString())
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andExpect(jsonPath("$.message").value("변경할 비밀번호가 존재하지 않습니다."))
         .andDo(print());
   }
@@ -447,7 +447,7 @@ class UserControllerTest {
                 .content(obj.toString())
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andExpect(jsonPath("$.message").value("현재 비밀번호와 변경할 비밀번호가 동일합니다."))
         .andDo(print());
   }
@@ -468,7 +468,7 @@ class UserControllerTest {
                 .content(obj.toString())
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andExpect(jsonPath("$.message").value("현재 비밀번호가 존재하지 않습니다."))
         .andDo(print());
   }
@@ -486,7 +486,7 @@ class UserControllerTest {
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andExpect(jsonPath("$.message").value("비밀번호가 존재하지 않습니다."))
         .andDo(print());
   }
@@ -509,7 +509,7 @@ class UserControllerTest {
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is2xxSuccessful())
-        .andExpect(jsonPath("$.code").value(200))
+        .andExpect(jsonPath("$.status").value("OK"))
         .andExpect(jsonPath("$.message").value("회원탈퇴가 정상적으로 이뤄졌습니다."))
         .andDo(print());
   }
@@ -533,7 +533,7 @@ class UserControllerTest {
                 .content(Constant.ADMIN_CODE)
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is2xxSuccessful())
-        .andExpect(jsonPath("$.code").value(200))
+        .andExpect(jsonPath("$.status").value("OK"))
         .andExpect(jsonPath("$.message").value("관리자 권한을 부여 받았습니다."))
         .andDo(print());
   }
@@ -552,7 +552,7 @@ class UserControllerTest {
                 .content("")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andExpect(jsonPath("$.message").value("코드가 존재하지 않습니다."))
         .andDo(print());
   }
@@ -571,7 +571,7 @@ class UserControllerTest {
                 .content("asdadsadas")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andExpect(jsonPath("$.message").value("관리자 코드가 일치하지 않습니다."))
         .andDo(print());
   }
@@ -589,7 +589,7 @@ class UserControllerTest {
                 .header(JwtProperties.HEADER_STRING, prefixToken)
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.code").value(400))
+        .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
         .andExpect(jsonPath("$.message").value("코드가 존재하지 않습니다."))
         .andDo(print());
   }

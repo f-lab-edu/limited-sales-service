@@ -5,7 +5,7 @@ import com.limited.sales.user.vo.User;
 import javax.validation.constraints.NotNull;
 
 public interface TokenService {
-  String reissue(@NotNull final User user);
+  TokenVo reissue(@NotNull final User user);
 
   void deleteRefreshToken(@NotNull final User user);
 

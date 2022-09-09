@@ -12,9 +12,10 @@ public interface UserService {
 
   void deleteUser(final User user);
 
-  void updatePassword(final User currentUser, final String updatePassword);
+  void updatePassword(final User currentUser, final String newPassword);
 
-  boolean checkPassword(final @NotNull User currentUser, final @NotNull String currentPassword);
+  boolean checkPassword(
+      final @NotNull String currentPassword, final @NotNull String encodedPassword);
 
   void updateUserInformation(final User user, final String cellphone);
 

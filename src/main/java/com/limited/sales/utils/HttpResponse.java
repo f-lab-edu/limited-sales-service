@@ -5,10 +5,11 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Getter
 public class HttpResponse<T> {
-  @NotBlank(message = "응답상태가 존재하지 않습니다.")
+  @NotNull(message = "응답상태가 존재하지 않습니다.")
   private final HttpStatus status;
 
   @NotBlank(message = "메세지가 존재하지 않습니다.")

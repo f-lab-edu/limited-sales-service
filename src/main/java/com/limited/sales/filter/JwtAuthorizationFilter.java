@@ -15,23 +15,25 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.validation.annotation.Validated;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 
 @Slf4j
+@Validated
 public final class JwtAuthorizationFilter extends BasicAuthenticationFilter {
   private final UserService userService;
-  private final RedisService redisService;
+  private final RedisService<String> redisService;
 
   public JwtAuthorizationFilter(
       AuthenticationManager authenticationManager,
       UserService userService,
-      RedisService redisService) {
+      RedisService<String> redisService) {
     super(authenticationManager);
     this.userService = userService;
     this.redisService = redisService;
@@ -43,7 +45,7 @@ public final class JwtAuthorizationFilter extends BasicAuthenticationFilter {
       throws IOException, ServletException {
     final String header = request.getHeader(JwtProperties.HEADER_STRING);
 
-    if (!JwtValidationUtils.hasValidJwtToken(header)) {
+    if (JwtValidationUtils.hasValidJwtTokenNull(header)) {
       chain.doFilter(request, response);
       return;
     }
@@ -53,9 +55,6 @@ public final class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     final String token = JwtUtils.replaceTokenPrefix(header);
     final String userEmail = JwtUtils.getClaim(token, JwtProperties.USER_EMAIL).asString();
-    if (StringUtils.isBlank(userEmail)) {
-      throw new TokenException("토큰에 사용자 이메일이 존재하지 않습니다.");
-    }
 
     if (checkBlacklistToken(token, userEmail)) {
       throw new TokenException("로그아웃 된 엑세스 토큰 입니다. 재로그인이 필요합니다.");
@@ -66,13 +65,15 @@ public final class JwtAuthorizationFilter extends BasicAuthenticationFilter {
   }
 
   private boolean checkBlacklistToken(
-      @NotNull final String prefixToken, @NotNull final String userEmail) {
+      @NotBlank(message = "토큰이 존재하지 않습니다.") final String prefixToken,
+      @NotBlank(message = "이메일이 존재하지 않습니다.") final String userEmail) {
     final String blackPrefixToken =
         redisService.getValue(userEmail + JwtProperties.BLACKLIST_POSTFIX);
     return prefixToken.equals(blackPrefixToken);
   }
 
-  private void setAuthenticationContext(@NotNull final String userEmail) {
+  private void setAuthenticationContext(
+      @NotBlank(message = "이메일이 존재하지 않습니다.") final String userEmail) {
     final User foundByEmail = userService.findByEmail(userEmail);
 
     final PrincipalDetails principalDetails = new PrincipalDetails(foundByEmail);

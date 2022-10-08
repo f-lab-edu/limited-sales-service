@@ -2,6 +2,7 @@ package com.limited.sales.product;
 
 import com.limited.sales.product.vo.Product;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface ProductMapper {
@@ -21,4 +22,6 @@ public interface ProductMapper {
    * @return
    */
   Product findByProductId(final Integer productId);
+
+  int updateProduct(@Param("id") final Integer id, @Param("product") final Product product);
 }

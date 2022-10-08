@@ -1,65 +1,68 @@
 package com.limited.sales.product;
 
-import com.limited.sales.exception.sub.BadRequestException;
 import com.limited.sales.product.vo.Product;
+import com.limited.sales.utils.HttpResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
-@RestController
 @Slf4j
+@Validated
+@RestController
 @RequiredArgsConstructor
-@RequestMapping(
-    value = "/product",
-    produces = MediaType.APPLICATION_JSON_VALUE,
-    consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/products", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProductController {
 
   private final ProductService productService;
 
   /**
-   * 상품정보 등록하기
    * @param product
    * @return
+   */
+  @GetMapping
+  public HttpResponse<Void> findProduct() {
+    return null;
+  }
+
+  /**
+   * 상품 등록
+   *
+   * @param product 상품 정보
+   * @return HttpStatus.CREATED, message = 상품이 등록되었습니다.
    */
   @PostMapping
-  // @Secured(Constant.ROLE_ADMIN)
-  public ResponseEntity<String> saveProduct(@RequestBody final Product product) {
-    validateProduct(product);
-    productService.save(product);
-    return new ResponseEntity<>(HttpStatus.CREATED);
+  public HttpResponse<Void> saveProduct(
+      @RequestBody @Valid @NotNull(message = "상품이 존재하지 않습니다.") final Product product) {
+
+    if (productService.save(product) > 0) {
+      return HttpResponse.toResponse(HttpStatus.CREATED, "상품이 등록되었습니다.");
+    } else {
+      return HttpResponse.toResponse(HttpStatus.BAD_REQUEST, "상품등록을 실패했습니다.");
+    }
   }
 
   /**
-   * 주문하기
-   * @param product
-   * @return
-   */
-  @PostMapping("/order")
-  public ResponseEntity<String> orderProduct(@RequestBody final Product product) {
-    validateProduct(product);
-    productService.order(product);
-    return new ResponseEntity<>(HttpStatus.CREATED);
-  }
-
-  /**
-   * product null check
+   * 상품 상세 정보 수정
    *
-   * @param product
+   * @param productId 수정할 상품 번호
+   * @param product 상품 정보
+   * @return HttpStatus.OK, "상품이 수정되었습니다.", HttpStatus.BAD_REQUEST, "상품을 수정하는데 실패했습니다."
    */
-  private void validateProduct(Product product) {
-    Optional.ofNullable(product)
-        .orElseThrow(
-            () -> {
-              throw new BadRequestException("상품정보를 다시 입력해주세요.");
-            });
+  @PutMapping("/{id}")
+  public HttpResponse<Void> updateProduct(
+      @PathVariable("id") @NotNull(message = "상품 아이디가 존재하지 않습니다.") final Integer productId,
+      @RequestBody @Valid @NotNull(message = "상품이 존재하지 않습니다.") final Product product) {
+
+    if (productService.updateProductInformation(productId, product) > 0) {
+      return HttpResponse.toResponse(HttpStatus.OK, "상품이 수정되었습니다.");
+    } else {
+      return HttpResponse.toResponse(HttpStatus.BAD_REQUEST, "상품을 수정하는데 실패했습니다.");
+    }
   }
 }

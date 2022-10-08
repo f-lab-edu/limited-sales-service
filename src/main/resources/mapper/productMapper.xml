@@ -9,19 +9,21 @@
             SELECT max(id) as id FROM product
         </selectKey>
         INSERT INTO product (name,
-                             price,
-                             quantity,
-                             details,
-                             file_group_id,
-                             sales_time,
-                             end_time)
+        price,
+        quantity,
+        details,
+        status,
+        file_group_id,
+        sales_time,
+        end_time)
         VALUES (#{name},
-                #{price},
-                #{quantity},
-                #{details},
-                #{fileGroupId},
-                #{salesTime},
-                #{endTime})
+        #{price},
+        #{quantity},
+        #{details},
+        #{salesStatus.status},
+        #{fileGroupId},
+        #{salesTime},
+        #{endTime})
     </insert>
 
     <select id="findByProductId" parameterType="int" resultType="com.limited.sales.product.vo.Product">
@@ -30,7 +32,7 @@
                price,
                quantity,
                details,
-               status,
+               salesStatus,
                file_group_id,
                create_date_time,
                sales_time,
@@ -39,5 +41,15 @@
         WHERE id = #{id}
     </select>
 
-
+    <update id="updateProduct">
+        UPDATE product
+        SET name          = #{product.name},
+            price         = #{product.price},
+            details       = #{product.details},
+            status        = #{product.salesStatus.status},
+            file_group_id = #{product.fileGroupId},
+            sales_time    = #{product.salesTime},
+            end_time      = #{product.endTime}
+        WHERE id = #{id}
+    </update>
 </mapper>

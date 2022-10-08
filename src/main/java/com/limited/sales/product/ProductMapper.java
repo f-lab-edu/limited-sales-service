@@ -25,11 +25,11 @@ public interface ProductMapper {
 
   /**
    * 상품 정보 수정
-   * @param id
+   * @param productId
    * @param product
    * @return
    */
-  int updateProduct(@Param("id") final Integer id, @Param("product") final Product product);
+  int updateProduct(@Param("productId") final Integer productId, @Param("product") final Product product);
 
   /**
    * 상품 수량 수정

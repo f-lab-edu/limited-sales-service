@@ -13,6 +13,12 @@ public class ProductServiceImpl implements ProductService {
   private final ProductMapper productMapper;
   private final RedisService<Object> redisService;
 
+  /**
+   * 상품 등록
+   *
+   * @param product 상품 정보
+   * @return
+   */
   @Override
   public int save(final Product product) {
     final int productId = productMapper.saveProduct(product);
@@ -22,16 +28,8 @@ public class ProductServiceImpl implements ProductService {
   }
 
   /**
-   * @param productId
-   * @param quantity
-   * @return
-   */
-  @Override
-  public int updateQuantity(Integer productId, Integer quantity) {
-    return 0;
-  }
-
-  /**
+   * 상품 정보 수정
+   *
    * @param productId
    * @param product
    * @return

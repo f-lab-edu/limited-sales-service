@@ -23,5 +23,19 @@ public interface ProductMapper {
    */
   Product findByProductId(final Integer productId);
 
+  /**
+   * 상품 정보 수정
+   * @param id
+   * @param product
+   * @return
+   */
   int updateProduct(@Param("id") final Integer id, @Param("product") final Product product);
+
+  /**
+   * 상품 수량 수정
+   * @param productId
+   * @param quantity
+   * @return
+   */
+  int updateQuantity(@Param("productId") final Integer productId, @Param("quantity") final Integer quantity);
 }

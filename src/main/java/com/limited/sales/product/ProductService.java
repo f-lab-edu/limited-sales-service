@@ -2,6 +2,8 @@ package com.limited.sales.product;
 
 import com.limited.sales.product.vo.Product;
 
+import java.util.List;
+
 public interface ProductService {
   /**
    * 상품 등록
@@ -24,6 +26,12 @@ public interface ProductService {
   int deleteProduct(final Integer productId);
 
   /*
-    TODO :: 상품 조회,
+   TODO :: 상품 1건 조회
+  */
+  Product findProduct(final Integer productId);
+
+  /*
+  TODO :: 상품 전체 조회
    */
+  List<Product> finalProductsList();
 }

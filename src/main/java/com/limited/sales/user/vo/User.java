@@ -10,10 +10,10 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @ToString
 public class User {
-  @NotBlank(message = "이메일을 입력하지 않았습니다.")
+  @NotBlank(message = "{user.email.null}")
   private String email;
 
-  @NotBlank(message = "비밀번호를 입력하지 않았습니다.")
+  @NotBlank(message = "{user.password.null}")
   private String password;
 
   private String cellphone;

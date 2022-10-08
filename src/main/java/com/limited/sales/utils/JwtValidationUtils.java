@@ -2,14 +2,17 @@ package com.limited.sales.utils;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
 
 import static com.auth0.jwt.JWT.require;
 
+@Validated
 public final class JwtValidationUtils {
 
-  public static boolean isAccessTokenValid(final @NotNull String token) {
+  public static boolean isAccessTokenValid(
+      @NotEmpty(message = "토큰이 존재하지 않습니다.") final String token) {
     try {
       final String prefixToken = JwtUtils.replaceTokenPrefix(token);
       require(Algorithm.HMAC512(JwtProperties.ACCESS_SECRET)).build().verify(prefixToken);
@@ -24,7 +27,8 @@ public final class JwtValidationUtils {
     }
   }
 
-  public static boolean isRefreshTokenValid(final @NotNull String token) {
+  public static boolean isRefreshTokenValid(
+      @NotEmpty(message = "토큰이 존재하지 않습니다.") final String token) {
     try {
       require(Algorithm.HMAC512(JwtProperties.REFRESH_SECRET)).build().verify(token);
       return true;
@@ -38,11 +42,12 @@ public final class JwtValidationUtils {
     }
   }
 
-  public static boolean hasValidJwtToken(final @NotNull String token) {
+  public static boolean hasValidJwtTokenNull(
+      @NotEmpty(message = "토큰이 존재하지 않습니다.") final String token) {
     if (token == null) {
-      return false;
+      return true;
     }
 
-    return token.startsWith(JwtProperties.TOKEN_PREFIX);
+    return !token.startsWith(JwtProperties.TOKEN_PREFIX);
   }
 }

@@ -4,29 +4,27 @@
 
 <mapper namespace="com.limited.sales.product.ProductMapper">
 
-    <insert id="saveProduct" parameterType="Product" useGeneratedKeys="true" keyProperty="id"
-            keyColumn="id">
+    <insert id="saveProduct">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            SELECT max(id) as id FROM product
+        </selectKey>
         INSERT INTO product (name,
                              price,
                              quantity,
                              details,
-                             status,
                              file_group_id,
-                             create_date_time,
                              sales_time,
                              end_time)
         VALUES (#{name},
                 #{price},
                 #{quantity},
                 #{details},
-                #{status},
                 #{fileGroupId},
-                #{createDateTime},
                 #{salesTime},
                 #{endTime})
     </insert>
 
-    <select id="findByProductId" parameterType="int" resultType="Product">
+    <select id="findByProductId" parameterType="int" resultType="com.limited.sales.product.vo.Product">
         SELECT id,
                name,
                price,

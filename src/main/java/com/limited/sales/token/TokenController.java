@@ -2,21 +2,19 @@ package com.limited.sales.token;
 
 import com.limited.sales.annotation.CurrentUser;
 import com.limited.sales.user.vo.User;
+import com.limited.sales.utils.HttpResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping(
-    value = "/token",
-    produces = MediaType.APPLICATION_JSON_VALUE,
-    consumes = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@RequestMapping(value = "/token", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TokenController {
   private final TokenService tokenService;
 
@@ -32,7 +30,7 @@ public class TokenController {
    * @return ResponseEntity<String>
    */
   @PostMapping
-  public ResponseEntity<String> reissueAccessToken(@CurrentUser User user) {
-    return ResponseEntity.ok().body(tokenService.reissue(user));
+  public HttpResponse<TokenVo> reissueAccessToken(@CurrentUser User user) {
+    return HttpResponse.toResponse(HttpStatus.OK, "토큰이 재발급되었습니다.", tokenService.reissue(user));
   }
 }

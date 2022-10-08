@@ -52,6 +52,22 @@ public class ProductServiceImpl implements ProductService {
   }
 
   /**
+   * 상품 수량 수정
+   *
+   * @param productId
+   * @param quantity
+   * @return
+   */
+  @Override
+  public int updateQuantity(Integer productId, Integer quantity) {
+    int result = productMapper.updateQuantity(productId, quantity);
+    if (result > 0) {
+      redisService.setValue(ProductProperties.PRODUCT_PREFIX + productId, quantity);
+    }
+    return result;
+  }
+
+  /**
    * @param productId
    * @return
    */

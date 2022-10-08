@@ -50,6 +50,12 @@
             file_group_id = #{product.fileGroupId},
             sales_time    = #{product.salesTime},
             end_time      = #{product.endTime}
-        WHERE id = #{id}
+        WHERE id = #{productId}
+    </update>
+
+    <update id="updateQuantity">
+        UPDATE product
+        SET quantity = #{quantity}
+        WHERE id = #{productId}
     </update>
 </mapper>

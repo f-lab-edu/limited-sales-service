@@ -4,6 +4,8 @@ import com.limited.sales.product.vo.Product;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface ProductMapper {
 
@@ -21,7 +23,7 @@ public interface ProductMapper {
    * @param productId
    * @return
    */
-  Product findByProductId(final Integer productId);
+  Product findByProductId(@Param("productId") final Integer productId);
 
   /**
    * 상품 정보 수정
@@ -45,4 +47,6 @@ public interface ProductMapper {
    * @return
    */
   int deleteProduct(@Param("productId") final Integer productId);
+
+  List<Product> findProductList();
 }

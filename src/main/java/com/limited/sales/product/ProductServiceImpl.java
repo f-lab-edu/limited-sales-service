@@ -22,7 +22,9 @@ public class ProductServiceImpl implements ProductService {
   @Override
   public int save(final Product product) {
     final int productId = productMapper.saveProduct(product);
-    redisService.setValue(ProductProperties.PRODUCT_PREFIX + productId, product.getQuantity());
+    redisService.setValue(
+        ProductProperties.PRODUCT_QUANTITY_PREFIX + productId, product.getQuantity());
+    redisService.setValue(ProductProperties.PRODUCT_PREFIX + productId, product);
 
     return productId;
   }
@@ -46,7 +48,12 @@ public class ProductServiceImpl implements ProductService {
             .salesStatus(product.getSalesStatus())
             .salesTime(product.getSalesTime())
             .build();
-    return productMapper.updateProduct(productId, updateProduct);
+    final int result = productMapper.updateProduct(productId, updateProduct);
+    if (result > 0) {
+      redisService.deleteValue(ProductProperties.PRODUCT_PREFIX + productId);
+    }
+
+    return result;
   }
 
   /**
@@ -58,9 +65,9 @@ public class ProductServiceImpl implements ProductService {
    */
   @Override
   public int updateQuantity(Integer productId, Integer quantity) {
-    int result = productMapper.updateQuantity(productId, quantity);
+    final int result = productMapper.updateQuantity(productId, quantity);
     if (result > 0) {
-      redisService.setValue(ProductProperties.PRODUCT_PREFIX + productId, quantity);
+      redisService.deleteValue(ProductProperties.PRODUCT_QUANTITY_PREFIX + productId);
     }
     return result;
   }
@@ -73,27 +80,40 @@ public class ProductServiceImpl implements ProductService {
    */
   @Override
   public int deleteProduct(final Integer productId) {
-    int result = productMapper.deleteProduct(productId);
+    final int result = productMapper.deleteProduct(productId);
     if (result > 0) {
+      redisService.deleteValue(ProductProperties.PRODUCT_QUANTITY_PREFIX + productId);
       redisService.deleteValue(ProductProperties.PRODUCT_PREFIX + productId);
     }
     return result;
   }
 
   /**
+   * 상품 1건 조회
+   *
    * @param productId
    * @return
    */
   @Override
   public Product findProduct(Integer productId) {
-    return null;
+    final Product findProduct = productMapper.findByProductId(productId);
+    if (findProduct == null) {
+      redisService.setValue(ProductProperties.PRODUCT_PREFIX + productId, findProduct);
+    }
+    return findProduct;
   }
 
   /**
+   * 상품 전체 조회
+   *
    * @return
    */
   @Override
   public List<Product> finalProductsList() {
-    return null;
+    final List<Product> finalProductsList = productMapper.findProductList();
+    if (finalProductsList == null) {
+      redisService.setValue(ProductProperties.PRODUCT_LIST, finalProductsList);
+    }
+    return finalProductsList;
   }
 }

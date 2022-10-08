@@ -38,7 +38,21 @@
                sales_time,
                end_time
         FROM product
-        WHERE id = #{id}
+        WHERE id = #{productId}
+    </select>
+
+    <select id="findProductList" resultType="com.limited.sales.product.vo.Product">
+        SELECT id,
+               name,
+               price,
+               quantity,
+               details,
+               salesStatus,
+               file_group_id,
+               create_date_time,
+               sales_time,
+               end_time
+        FROM product
     </select>
 
     <update id="updateProduct">

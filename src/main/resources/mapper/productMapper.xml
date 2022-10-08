@@ -53,6 +53,12 @@
         WHERE id = #{productId}
     </update>
 
+    <update id="deleteProduct">
+        UPDATE product
+        SET status = 'N'
+        WHERE id = #{productId}
+    </update>
+
     <update id="updateQuantity">
         UPDATE product
         SET quantity = #{quantity}

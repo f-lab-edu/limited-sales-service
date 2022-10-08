@@ -66,12 +66,18 @@ public class ProductServiceImpl implements ProductService {
   }
 
   /**
+   * 상품 삭제
+   *
    * @param productId
    * @return
    */
   @Override
-  public int deleteProduct(Integer productId) {
-    return 0;
+  public int deleteProduct(final Integer productId) {
+    int result = productMapper.deleteProduct(productId);
+    if (result > 0) {
+      redisService.deleteValue(ProductProperties.PRODUCT_PREFIX + productId);
+    }
+    return result;
   }
 
   /**

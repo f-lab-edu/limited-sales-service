@@ -38,4 +38,11 @@ public interface ProductMapper {
    * @return
    */
   int updateQuantity(@Param("productId") final Integer productId, @Param("quantity") final Integer quantity);
+
+  /**
+   * 상품 삭제
+   * @param productId
+   * @return
+   */
+  int deleteProduct(@Param("productId") final Integer productId);
 }

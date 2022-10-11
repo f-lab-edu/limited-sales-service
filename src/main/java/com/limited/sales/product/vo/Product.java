@@ -1,35 +1,69 @@
 package com.limited.sales.product.vo;
 
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @ToString
-public class Product implements Serializable{
+@NoArgsConstructor
+public class Product implements Serializable {
 
   private Integer id;
+
+  @NotBlank(message = "상품 이름이 존재하지 않습니다.")
   private String name;
+
+  @NotNull(message = "상품 가격이 존재하지 않습니다.")
   private Integer price;
+
+  @NotNull(message = "상품 수량이 존재하지 않습니다.")
   private Integer quantity;
+
+  @NotBlank(message = "상품 설명이 존재하지 않습니다.")
   private String details;
-  private Status status;
+
+  @NotNull(message = "상품 판매 여부가 존재하지 않습니다.")
+  private SalesStatus salesStatus;
+
+  @NotNull(message = "상품 이미지가 존재하지 않습니다.")
   private Integer fileGroupId;
+
+  @JsonFormat(
+      shape = JsonFormat.Shape.STRING,
+      pattern = "yyyy-MM-dd HH:mm:ss",
+      timezone = "Asia/Seoul")
   private LocalDateTime createDateTime;
+
+  @NotNull(message = "상품 판매시작 시간이 존재하지 않습니다.")
+  @JsonFormat(
+      shape = JsonFormat.Shape.STRING,
+      pattern = "yyyy-MM-dd HH:mm:ss",
+      timezone = "Asia/Seoul")
   private LocalDateTime salesTime;
+
+  @NotNull(message = "상품 판매종료 시간이 존재하지 않습니다.")
+  @JsonFormat(
+      shape = JsonFormat.Shape.STRING,
+      pattern = "yyyy-MM-dd HH:mm:ss",
+      timezone = "Asia/Seoul")
   private LocalDateTime endTime;
 
-  public Product (
+  @Builder
+  public Product(
       String name,
-      int price,
-      int quantity,
+      Integer price,
+      Integer quantity,
       String details,
-      Status status,
-      int fileGroupId,
+      SalesStatus salesStatus,
+      Integer fileGroupId,
       LocalDateTime createDateTime,
       LocalDateTime salesTime,
       LocalDateTime endTime) {
@@ -37,7 +71,7 @@ public class Product implements Serializable{
     this.price = price;
     this.quantity = quantity;
     this.details = details;
-    this.status = status;
+    this.salesStatus = salesStatus;
     this.fileGroupId = fileGroupId;
     this.createDateTime = createDateTime;
     this.salesTime = salesTime;
@@ -45,18 +79,22 @@ public class Product implements Serializable{
   }
 
   /** 상품 상태 정보 */
-  public enum Status {
-    Y("Y"),
-    N("N");
+  public enum SalesStatus {
+    SALE("Y"),
+    UNSOLD("N");
 
-    private String value;
+    private String status;
 
-    Status(String value) {
-      this.value = value;
+    SalesStatus(final String status) {
+      this.status = status;
     }
 
-    public String getValue() {
-      return value;
+    public String getStatus() {
+      return status;
+    }
+
+    public void setStatus(String status) {
+      this.status = status;
     }
   }
 }

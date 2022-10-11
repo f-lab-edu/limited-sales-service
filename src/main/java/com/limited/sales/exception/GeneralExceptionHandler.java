@@ -10,6 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -75,14 +76,26 @@ public final class GeneralExceptionHandler {
     HttpMessageNotReadableException.class,
     RedisBadArgumentException.class,
     IllegalArgumentException.class,
+    HttpRequestMethodNotSupportedException.class,
   })
-  public ExceptionVo<Void> badRequest(final RuntimeException e) {
+  public ExceptionVo<Void> badRequest(final Exception e) {
     log.error(e.toString());
     e.printStackTrace();
-    return ExceptionVo.<Void>builder()
-        .message(e.getLocalizedMessage())
-        .status(HttpStatus.BAD_REQUEST)
-        .build();
+    final ExceptionVo<Void> exceptionVo =
+        ExceptionVo.<Void>builder()
+            .status(HttpStatus.BAD_REQUEST)
+            .message(e.getLocalizedMessage())
+            .build();
+
+    if (e instanceof MethodArgumentTypeMismatchException) {
+      exceptionVo.setMessage("숫자만 입력할 수 있습니다.");
+    }
+
+    if(e instanceof HttpRequestMethodNotSupportedException) {
+      exceptionVo.setMessage("해당 메소드는 지원하지 않습니다.");
+    }
+
+    return exceptionVo;
   }
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -120,6 +133,17 @@ public final class GeneralExceptionHandler {
     e.printStackTrace();
     return ExceptionVo.<Void>builder()
         .message("누락된 헤더가 존재합니다. 다시 시도해주세요.")
+        .status(HttpStatus.BAD_REQUEST)
+        .build();
+  }
+
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler({NumberFormatException.class})
+  public ExceptionVo<Void> numberFormat(final NumberFormatException e) {
+    log.error(e.toString());
+    e.printStackTrace();
+    return ExceptionVo.<Void>builder()
+        .message("숫자만 입력할 수 있습니다.")
         .status(HttpStatus.BAD_REQUEST)
         .build();
   }

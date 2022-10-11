@@ -9,7 +9,6 @@ import com.limited.sales.utils.JwtProperties;
 import com.limited.sales.utils.JwtUtils;
 import com.limited.sales.utils.JwtValidationUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -45,7 +44,7 @@ public final class JwtAuthorizationFilter extends BasicAuthenticationFilter {
       throws IOException, ServletException {
     final String header = request.getHeader(JwtProperties.HEADER_STRING);
 
-    if (JwtValidationUtils.hasValidJwtTokenNull(header)) {
+    if (JwtValidationUtils.hasValidJwtToken(header)) {
       chain.doFilter(request, response);
       return;
     }

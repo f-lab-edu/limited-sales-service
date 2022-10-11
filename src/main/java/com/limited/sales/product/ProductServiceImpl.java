@@ -24,7 +24,6 @@ public class ProductServiceImpl implements ProductService {
     final int productId = productMapper.saveProduct(product);
     redisService.setValue(
         ProductProperties.PRODUCT_QUANTITY_PREFIX + productId, product.getQuantity());
-    redisService.setValue(ProductProperties.PRODUCT_PREFIX + productId, product);
 
     return productId;
   }
@@ -95,9 +94,11 @@ public class ProductServiceImpl implements ProductService {
    * @return
    */
   @Override
-  public Product findProduct(Integer productId) {
-    final Product findProduct = productMapper.findByProductId(productId);
+  public Product findProduct(final Integer productId) {
+    Product findProduct =
+        (Product) redisService.getValue(ProductProperties.PRODUCT_PREFIX + productId);
     if (findProduct == null) {
+      findProduct = productMapper.findByProductId(productId);
       redisService.setValue(ProductProperties.PRODUCT_PREFIX + productId, findProduct);
     }
     return findProduct;
@@ -110,10 +111,12 @@ public class ProductServiceImpl implements ProductService {
    */
   @Override
   public List<Product> finalProductsList() {
-    final List<Product> finalProductsList = productMapper.findProductList();
-    if (finalProductsList == null) {
-      redisService.setValue(ProductProperties.PRODUCT_LIST, finalProductsList);
+    List<Product> findProductsList =
+        (List<Product>) redisService.getValue(ProductProperties.PRODUCT_LIST);
+    if (findProductsList == null) {
+      findProductsList = productMapper.findProductList();
+      redisService.setValue(ProductProperties.PRODUCT_LIST, findProductsList);
     }
-    return finalProductsList;
+    return findProductsList;
   }
 }

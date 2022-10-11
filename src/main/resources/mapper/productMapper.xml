@@ -3,6 +3,10 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.limited.sales.product.ProductMapper">
+    <resultMap id="productVo" type="com.limited.sales.product.vo.Product">
+        <result column="sales_status" property="salesStatus" typeHandler="com.limited.sales.product.ProductEnumTypeHandler"/>
+    </resultMap>
+
 
     <insert id="saveProduct">
         <selectKey keyProperty="id" resultType="int" order="AFTER">
@@ -12,7 +16,7 @@
         price,
         quantity,
         details,
-        status,
+        sales_status,
         file_group_id,
         sales_time,
         end_time)
@@ -26,13 +30,13 @@
         #{endTime})
     </insert>
 
-    <select id="findByProductId" parameterType="int" resultType="com.limited.sales.product.vo.Product">
+    <select id="findByProductId" parameterType="int" resultMap="productVo">
         SELECT id,
                name,
                price,
                quantity,
                details,
-               salesStatus,
+               sales_status,
                file_group_id,
                create_date_time,
                sales_time,
@@ -41,13 +45,13 @@
         WHERE id = #{productId}
     </select>
 
-    <select id="findProductList" resultType="com.limited.sales.product.vo.Product">
+    <select id="findProductList" resultMap="productVo">
         SELECT id,
                name,
                price,
                quantity,
                details,
-               salesStatus,
+               sales_status,
                file_group_id,
                create_date_time,
                sales_time,
@@ -60,7 +64,7 @@
         SET name          = #{product.name},
             price         = #{product.price},
             details       = #{product.details},
-            status        = #{product.salesStatus.status},
+            sales_status  = #{product.salesStatus.status},
             file_group_id = #{product.fileGroupId},
             sales_time    = #{product.salesTime},
             end_time      = #{product.endTime}
@@ -69,7 +73,7 @@
 
     <update id="deleteProduct">
         UPDATE product
-        SET status = 'N'
+        SET sales_status = 'N'
         WHERE id = #{productId}
     </update>
 

@@ -28,7 +28,7 @@ public class ProductController {
    * @param productId
    * @return
    */
-  @GetMapping("{id}")
+  @GetMapping("/{id}")
   public HttpResponse<Product> findProduct(
       @PathVariable("id") @NotNull(message = "상품 아이디가 존재하지 않습니다.") final Integer productId) {
     final Product foundProduct = productService.findProduct(productId);

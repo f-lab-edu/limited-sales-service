@@ -36,6 +36,10 @@ public class Product implements Serializable {
   @NotNull(message = "상품 이미지가 존재하지 않습니다.")
   private Integer fileGroupId;
 
+  @JsonFormat(
+      shape = JsonFormat.Shape.STRING,
+      pattern = "yyyy-MM-dd HH:mm:ss",
+      timezone = "Asia/Seoul")
   private LocalDateTime createDateTime;
 
   @NotNull(message = "상품 판매시작 시간이 존재하지 않습니다.")
@@ -79,7 +83,7 @@ public class Product implements Serializable {
     SALE("Y"),
     UNSOLD("N");
 
-    private final String status;
+    private String status;
 
     SalesStatus(final String status) {
       this.status = status;
@@ -87,6 +91,10 @@ public class Product implements Serializable {
 
     public String getStatus() {
       return status;
+    }
+
+    public void setStatus(String status) {
+      this.status = status;
     }
   }
 }

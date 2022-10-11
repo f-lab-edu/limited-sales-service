@@ -206,7 +206,7 @@ class JwtValidationUtilsTest {
                 .withClaim(JwtProperties.USER_EMAIL, "test@test.com")
                 .sign(Algorithm.HMAC512(JwtProperties.ACCESS_SECRET));
 
-    boolean testJwtToken = JwtValidationUtils.hasValidJwtTokenNull(testAccessToken);
+    boolean testJwtToken = JwtValidationUtils.hasValidJwtToken(testAccessToken);
 
     assertThat(testJwtToken).isTrue();
   }
@@ -221,7 +221,7 @@ class JwtValidationUtilsTest {
             .withClaim(JwtProperties.USER_EMAIL, "test@test.com")
             .sign(Algorithm.HMAC512(JwtProperties.ACCESS_SECRET));
 
-    boolean testJwtToken = JwtValidationUtils.hasValidJwtTokenNull(testAccessToken);
+    boolean testJwtToken = JwtValidationUtils.hasValidJwtToken(testAccessToken);
 
     assertThat(testJwtToken).isFalse();
   }
@@ -231,7 +231,7 @@ class JwtValidationUtilsTest {
   void hasValidJwtTokenEmpty() {
     String testAccessToken = "";
 
-    boolean testJwtToken = JwtValidationUtils.hasValidJwtTokenNull(testAccessToken);
+    boolean testJwtToken = JwtValidationUtils.hasValidJwtToken(testAccessToken);
 
     assertThat(testJwtToken).isFalse();
   }
@@ -241,7 +241,7 @@ class JwtValidationUtilsTest {
   void hasValidJwtTokenNull() {
     String testAccessToken = null;
 
-    boolean testJwtToken = JwtValidationUtils.hasValidJwtTokenNull(testAccessToken);
+    boolean testJwtToken = JwtValidationUtils.hasValidJwtToken(testAccessToken);
 
     assertThat(testJwtToken).isFalse();
   }

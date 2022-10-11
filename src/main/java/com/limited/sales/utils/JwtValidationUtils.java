@@ -42,7 +42,7 @@ public final class JwtValidationUtils {
     }
   }
 
-  public static boolean hasValidJwtTokenNull(
+  public static boolean hasValidJwtToken(
       @NotEmpty(message = "토큰이 존재하지 않습니다.") final String token) {
     if (token == null) {
       return true;
